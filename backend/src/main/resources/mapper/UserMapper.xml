@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.nt.sns.user.mapper.UserMapper">
+
+    <resultMap id="userResultMap" type="com.nt.sns.user.domain.User">
+        <id     property="id"             column="id"/>
+        <result property="employeeNo"     column="employee_no"/>
+        <result property="email"          column="email"/>
+        <result property="passwordHash"   column="password_hash"/>
+        <result property="name"           column="name"/>
+        <result property="department"     column="department"/>
+        <result property="position"       column="position"/>
+        <result property="bio"            column="bio"/>
+        <result property="profileImageUrl" column="profile_image_url"/>
+        <result property="role"           column="role"/>
+        <result property="loginFailCount" column="login_fail_count"/>
+        <result property="lockedUntil"    column="locked_until"/>
+        <result property="createdAt"      column="created_at"/>
+        <result property="updatedAt"      column="updated_at"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO users (employee_no, email, password_hash, name, department, position, role)
+        VALUES (#{employeeNo}, #{email}, #{passwordHash}, #{name}, #{department}, #{position}, 'USER')
+    </insert>
+
+    <select id="findById" resultMap="userResultMap">
+        SELECT * FROM users WHERE id = #{id}
+    </select>
+
+    <select id="findByEmail" resultMap="userResultMap">
+        SELECT * FROM users WHERE email = #{email}
+    </select>
+
+    <select id="findByEmployeeNo" resultMap="userResultMap">
+        SELECT * FROM users WHERE employee_no = #{employeeNo}
+    </select>
+
+    <select id="existsByEmail" resultType="boolean">
+        SELECT EXISTS(SELECT 1 FROM users WHERE email = #{email})
+    </select>
+
+    <select id="existsByEmployeeNo" resultType="boolean">
+        SELECT EXISTS(SELECT 1 FROM users WHERE employee_no = #{employeeNo})
+    </select>
+
+    <update id="updateLoginFailCount">
+        UPDATE users
+        SET login_fail_count = #{count},
+            locked_until     = #{lockedUntil},
+            updated_at       = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="resetLoginFailCount">
+        UPDATE users
+        SET login_fail_count = 0,
+            locked_until     = NULL,
+            updated_at       = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateProfile">
+        UPDATE users
+        SET bio               = #{bio},
+            profile_image_url = #{profileImageUrl},
+            updated_at        = NOW()
+        WHERE id = #{id}
+    </update>
+
+</mapper>

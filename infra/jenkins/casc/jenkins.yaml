@@ -1,0 +1,19 @@
+# Jenkins Configuration as Code (JCasC)
+# Jenkins 2.504.x LTS
+
+jenkins:
+  systemMessage: "사내 SNS 플랫폼 CI/CD - NT사업부"
+  numExecutors: 2
+  scmCheckoutRetryCount: 3
+
+  securityRealm:
+    local:
+      allowsSignup: false
+
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+unclassified:
+  location:
+    url: http://jenkins:8090/

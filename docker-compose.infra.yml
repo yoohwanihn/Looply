@@ -1,0 +1,145 @@
+# =============================================
+# 사내 SNS 플랫폼 - 인프라 환경 (CI/CD + 품질 + 모니터링)
+# 실행: docker compose -f docker-compose.yml -f docker-compose.infra.yml up -d
+# =============================================
+
+services:
+
+  # ── SonarQube 25.x Community ──────────────────────
+  sonarqube:
+    image: sonarqube:25-community
+    container_name: sns-sonarqube
+    restart: unless-stopped
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://sonar-db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: ${SONAR_JDBC_PASSWORD:-changeme_sonar_password}
+    ports:
+      - "9000:9000"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_extensions:/opt/sonarqube/extensions
+    depends_on:
+      sonar-db:
+        condition: service_healthy
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    networks:
+      - sns-net
+
+  sonar-db:
+    image: postgres:17-alpine
+    container_name: sns-sonar-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sonar
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: ${SONAR_JDBC_PASSWORD:-changeme_sonar_password}
+    volumes:
+      - sonar_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sonar -d sonar"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sns-net
+
+  # ── Jenkins 2.504.x LTS ───────────────────────────
+  jenkins:
+    image: jenkins/jenkins:2.504-lts-jdk21
+    container_name: sns-jenkins
+    restart: unless-stopped
+    environment:
+      JENKINS_OPTS: "--httpPort=8090"
+      TZ: Asia/Seoul
+    ports:
+      - "8090:8090"
+      - "50000:50000"
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./infra/jenkins/casc:/var/jenkins_home/casc_configs:ro
+    networks:
+      - sns-net
+
+  # ── Apache Kafka 3.9.x (KRaft 모드) ──────────────
+  kafka:
+    image: apache/kafka:3.9.0
+    container_name: sns-kafka
+    restart: unless-stopped
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      TZ: Asia/Seoul
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - sns-net
+
+  # ── Prometheus ────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: sns-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=7d'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - sns-net
+
+  # ── Grafana ───────────────────────────────────────
+  grafana:
+    image: grafana/grafana:latest
+    container_name: sns-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      TZ: Asia/Seoul
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    networks:
+      - sns-net
+
+volumes:
+  sonarqube_data:
+  sonarqube_logs:
+  sonarqube_extensions:
+  sonar_db_data:
+  jenkins_data:
+  kafka_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  sns-net:
+    external: true

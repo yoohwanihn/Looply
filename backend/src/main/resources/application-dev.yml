@@ -1,0 +1,14 @@
+spring:
+  devtools:
+    restart:
+      enabled: true
+
+logging:
+  level:
+    com.nt.sns: DEBUG
+    org.springframework.security: DEBUG
+    org.mybatis: DEBUG
+
+springdoc:
+  swagger-ui:
+    enabled: true
