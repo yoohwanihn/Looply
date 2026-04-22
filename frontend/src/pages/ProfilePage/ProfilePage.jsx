@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import client from '../../api/client.js'
+import { useParams, useNavigate } from 'react-router-dom'
+import { getProfile } from '../../api/users.js'
 import styles from './ProfilePage.module.css'
 
 export default function ProfilePage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [profile, setProfile] = useState(null)
+  const myId = localStorage.getItem('userId')
 
   useEffect(() => {
-    client.get(`/users/${id}`).then((res) => setProfile(res.data)).catch(() => {})
+    getProfile(id).then((res) => setProfile(res)).catch(() => {})
   }, [id])
 
   if (!profile) return <div className={styles.loading}>불러오는 중...</div>
@@ -38,6 +40,11 @@ export default function ProfilePage() {
             <span>팔로잉</span>
           </div>
         </div>
+        {String(myId) === String(id) && (
+          <button className={styles.editBtn} onClick={() => navigate('/profile/edit')}>
+            프로필 수정
+          </button>
+        )}
       </div>
     </div>
   )
