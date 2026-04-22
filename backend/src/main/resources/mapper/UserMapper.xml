@@ -62,14 +62,6 @@
         WHERE id = #{id}
     </update>
 
-    <update id="updateProfile">
-        UPDATE users
-        SET bio               = #{bio},
-            profile_image_url = #{profileImageUrl},
-            updated_at        = NOW()
-        WHERE id = #{id}
-    </update>
-
     <select id="countFollowers" resultType="int">
         SELECT COUNT(*) FROM follows WHERE following_id = #{userId}
     </select>

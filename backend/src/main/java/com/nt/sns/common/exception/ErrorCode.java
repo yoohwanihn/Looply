@@ -33,6 +33,9 @@ public enum ErrorCode {
     // Repost
     ALREADY_REPOSTED(HttpStatus.CONFLICT, "이미 리포스트했습니다."),
 
+    // File
+    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다."),
+
     // Common
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다.");
 

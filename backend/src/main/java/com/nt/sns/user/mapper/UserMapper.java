@@ -20,10 +20,6 @@ public interface UserMapper {
                               @Param("count") int count,
                               @Param("lockedUntil") OffsetDateTime lockedUntil);
     void resetLoginFailCount(Long id);
-    void updateProfile(@Param("id") Long id,
-                       @Param("bio") String bio,
-                       @Param("profileImageUrl") String profileImageUrl);
-
     int countFollowers(Long userId);
     int countFollowing(Long userId);
     int countPosts(Long userId);

@@ -1,10 +1,10 @@
 package com.nt.sns.user.controller;
 
 import com.nt.sns.common.dto.ApiResponse;
-import com.nt.sns.user.domain.User;
 import com.nt.sns.user.dto.AdminUpdateUserRequest;
 import com.nt.sns.user.dto.UpdateProfileRequest;
 import com.nt.sns.user.dto.UserProfileResponse;
+import com.nt.sns.user.dto.UserSearchResponse;
 import com.nt.sns.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -58,7 +58,7 @@ public class UserController {
 
     @Operation(summary = "사용자 검색 (멘션 자동완성)")
     @GetMapping("/search")
-    public ApiResponse<List<User>> search(@RequestParam String q) {
+    public ApiResponse<List<UserSearchResponse>> search(@RequestParam String q) {
         return ApiResponse.ok(userService.searchByName(q));
     }
 

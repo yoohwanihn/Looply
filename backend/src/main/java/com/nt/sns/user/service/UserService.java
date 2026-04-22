@@ -5,6 +5,7 @@ import com.nt.sns.common.exception.ErrorCode;
 import com.nt.sns.storage.StorageService;
 import com.nt.sns.user.domain.User;
 import com.nt.sns.user.dto.UserProfileResponse;
+import com.nt.sns.user.dto.UserSearchResponse;
 import com.nt.sns.user.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,7 +55,7 @@ public class UserService {
                     file.getInputStream(), file.getSize(), file.getContentType());
             userMapper.updateProfileImageUrl(userId, url);
         } catch (Exception e) {
-            throw new RuntimeException("아바타 업로드 실패", e);
+            throw new BusinessException(ErrorCode.FILE_UPLOAD_FAILED);
         }
         return getProfileResponse(userId);
     }
@@ -67,8 +68,16 @@ public class UserService {
         return getProfileResponse(targetId);
     }
 
-    public List<User> searchByName(String keyword) {
-        return userMapper.searchByName(keyword);
+    public List<UserSearchResponse> searchByName(String keyword) {
+        return userMapper.searchByName(keyword).stream()
+                .map(this::toSearchResponse)
+                .toList();
+    }
+
+    private UserSearchResponse toSearchResponse(User user) {
+        return new UserSearchResponse(
+                user.getId(), user.getEmployeeNo(), user.getName(),
+                user.getDepartment(), user.getPosition(), user.getProfileImageUrl());
     }
 
     private UserProfileResponse toResponse(User user) {
