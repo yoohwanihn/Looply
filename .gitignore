@@ -23,7 +23,7 @@ infra/minio/data/
 
 # 업로드 파일 (로컬 저장 시)
 uploads/
-storage/
+/storage/
 
 # Superpowers 자동 생성 문서
 docs/superpowers/
