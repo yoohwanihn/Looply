@@ -20,6 +20,19 @@ public enum ErrorCode {
     BANNED_WORD_DETECTED(HttpStatus.BAD_REQUEST, "금칙어가 포함되어 있습니다."),
     SELF_REPOST_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "본인 게시글은 리포스트할 수 없습니다."),
 
+    // Follow
+    ALREADY_FOLLOWING(HttpStatus.CONFLICT, "이미 팔로우하고 있습니다."),
+    SELF_FOLLOW_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "자기 자신을 팔로우할 수 없습니다."),
+
+    // Like
+    ALREADY_LIKED(HttpStatus.CONFLICT, "이미 좋아요를 눌렀습니다."),
+
+    // Comment
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
+
+    // Repost
+    ALREADY_REPOSTED(HttpStatus.CONFLICT, "이미 리포스트했습니다."),
+
     // Common
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다.");
 
