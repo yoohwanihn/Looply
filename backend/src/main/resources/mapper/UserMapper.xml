@@ -62,12 +62,43 @@
         WHERE id = #{id}
     </update>
 
-    <update id="updateProfile">
+    <select id="countFollowers" resultType="int">
+        SELECT COUNT(*) FROM follows WHERE following_id = #{userId}
+    </select>
+
+    <select id="countFollowing" resultType="int">
+        SELECT COUNT(*) FROM follows WHERE follower_id = #{userId}
+    </select>
+
+    <select id="countPosts" resultType="int">
+        SELECT COUNT(*) FROM posts WHERE user_id = #{userId} AND is_deleted = false
+    </select>
+
+    <update id="updateProfileBio">
+        UPDATE users SET bio = #{bio}, updated_at = NOW() WHERE id = #{id}
+    </update>
+
+    <update id="updateProfileImageUrl">
+        UPDATE users SET profile_image_url = #{profileImageUrl}, updated_at = NOW() WHERE id = #{id}
+    </update>
+
+    <update id="updateDepartmentAndPosition">
         UPDATE users
-        SET bio               = #{bio},
-            profile_image_url = #{profileImageUrl},
-            updated_at        = NOW()
+        SET department  = #{department},
+            position    = #{position},
+            updated_at  = NOW()
         WHERE id = #{id}
     </update>
+
+    <select id="searchByName" resultMap="userResultMap">
+        SELECT * FROM users
+        WHERE name ILIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY name
+        LIMIT 10
+    </select>
+
+    <select id="findByName" resultMap="userResultMap">
+        SELECT * FROM users WHERE name = #{name} LIMIT 1
+    </select>
 
 </mapper>

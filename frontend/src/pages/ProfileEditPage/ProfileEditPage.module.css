@@ -1,0 +1,24 @@
+.container { max-width: 600px; margin: 0 auto; padding: 16px; }
+.header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+.header h2 { margin: 0; font-size: 1.2rem; }
+.back { background: none; border: none; cursor: pointer; font-size: 1rem; color: #555; }
+.form { display: flex; flex-direction: column; gap: 20px; }
+.avatarSection { display: flex; justify-content: center; }
+.avatarLabel { cursor: pointer; }
+.avatarImg { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
+.avatarPlaceholder {
+  display: flex; align-items: center; justify-content: center;
+  width: 80px; height: 80px; border-radius: 50%;
+  background: #e0e0e0; font-size: 0.8rem; color: #666;
+}
+.label { display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; color: #444; }
+.textarea {
+  padding: 10px; border: 1px solid #ddd; border-radius: 8px;
+  font-size: 0.95rem; resize: vertical; font-family: inherit;
+}
+.count { font-size: 0.75rem; color: #999; text-align: right; }
+.saveBtn {
+  padding: 12px; background: #1d9bf0; color: white; border: none;
+  border-radius: 9999px; font-size: 1rem; cursor: pointer; font-weight: 600;
+}
+.saveBtn:disabled { opacity: 0.6; cursor: not-allowed; }
