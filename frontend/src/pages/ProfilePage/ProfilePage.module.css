@@ -10,6 +10,12 @@
   color: #999;
 }
 
+.error {
+  text-align: center;
+  padding: 80px;
+  color: #e53e3e;
+}
+
 .card {
   background: #fff;
   border-radius: 12px;
