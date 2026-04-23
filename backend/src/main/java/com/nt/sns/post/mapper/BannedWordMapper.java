@@ -1,0 +1,9 @@
+package com.nt.sns.post.mapper;
+
+import org.apache.ibatis.annotations.Mapper;
+import java.util.List;
+
+@Mapper
+public interface BannedWordMapper {
+    List<String> findAllWords();
+}
