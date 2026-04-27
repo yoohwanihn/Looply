@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { createPost, getTimeline } from '../../api/posts.js'
 import Post from '../../components/Post/Post.jsx'
 import styles from './TimelinePage.module.css'
+import { useWebSocket } from '../../hooks/useWebSocket.js'
 
 export default function TimelinePage() {
   const [posts, setPosts] = useState([])
@@ -10,9 +11,12 @@ export default function TimelinePage() {
   const [submitting, setSubmitting] = useState(false)
   const [cursor, setCursor] = useState(null)
   const [hasMore, setHasMore] = useState(true)
+  const [hasNew, setHasNew] = useState(false)
   const loaderRef = useRef(null)
   const loadingMoreRef = useRef(false)
   const MAX_LENGTH = 300
+
+  useWebSocket(() => setHasNew(true))
 
   useEffect(() => { fetchTimeline(null, true) }, [])
 
@@ -32,6 +36,7 @@ export default function TimelinePage() {
     try {
       const newPosts = await getTimeline(cur) ?? []
       setPosts((prev) => reset ? newPosts : [...prev, ...newPosts])
+      if (reset) setHasNew(false)
       if (newPosts.length > 0) setCursor(newPosts[newPosts.length - 1].id)
       setHasMore(newPosts.length === 20)
     } catch (_) {} finally {
@@ -88,6 +93,12 @@ export default function TimelinePage() {
             </button>
           </div>
         </form>
+
+        {hasNew && (
+          <button className={styles.newBanner} onClick={() => { fetchTimeline(null, true); setHasNew(false) }}>
+            새 게시물 보기
+          </button>
+        )}
 
         <div className={styles.feed}>
           {posts.map((post) => (
