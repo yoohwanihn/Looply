@@ -6,6 +6,7 @@ import com.nt.sns.post.domain.Post;
 import com.nt.sns.post.mapper.PostMapper;
 import com.nt.sns.post.service.BannedWordValidator;
 import com.nt.sns.post.service.PostService;
+import com.nt.sns.post.service.TimelinePublisher;
 import com.nt.sns.storage.StorageService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +28,7 @@ class PostServiceTest {
     @Mock PostMapper postMapper;
     @Mock BannedWordValidator bannedWordValidator;
     @Mock StorageService storageService;
+    @Mock TimelinePublisher timelinePublisher;
     @InjectMocks PostService postService;
 
     @Test
