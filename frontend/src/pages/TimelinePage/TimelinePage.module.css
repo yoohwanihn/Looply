@@ -113,3 +113,32 @@
   padding: 48px 0;
   font-size: 15px;
 }
+
+.imageLabel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #4a6cf7;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 16px;
+  transition: background 0.15s;
+}
+
+.imageLabel:hover {
+  background: #eef0ff;
+}
+
+.imageCount {
+  font-size: 13px;
+  color: #4a6cf7;
+  font-weight: 500;
+}
+
+.loader {
+  text-align: center;
+  padding: 24px 0;
+  color: #bbb;
+  font-size: 13px;
+}
