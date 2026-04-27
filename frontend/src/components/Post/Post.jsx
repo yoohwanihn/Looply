@@ -7,6 +7,8 @@ export default function Post({ post, onUpdate, showComments }) {
   const navigate = useNavigate()
   const [likeCount, setLikeCount] = useState(post.likeCount ?? 0)
   const [liked, setLiked] = useState(post.likedByMe ?? false)
+  const [reposted, setReposted] = useState(post.repostedByMe ?? false)
+  const [repostCount, setRepostCount] = useState(post.repostCount ?? 0)
   const myId = Number(localStorage.getItem('userId'))
   const isOwner = post.userId === myId
 
@@ -30,13 +32,22 @@ export default function Post({ post, onUpdate, showComments }) {
     try {
       await deletePost(post.id)
       if (onUpdate) onUpdate()
-    } catch (_) {}
+    } catch (_) {
+      alert('게시글 삭제에 실패했습니다.')
+    }
   }
 
   const handleRepost = async (e) => {
     e.stopPropagation()
     try {
-      await repost(post.id)
+      if (reposted) {
+        await undoRepost(post.id)
+        setRepostCount((c) => c - 1)
+      } else {
+        await repost(post.id)
+        setRepostCount((c) => c + 1)
+      }
+      setReposted(!reposted)
       if (onUpdate) onUpdate()
     } catch (_) {}
   }
@@ -91,7 +102,7 @@ export default function Post({ post, onUpdate, showComments }) {
           {post.imageUrls?.length > 0 && (
             <div className={styles.images}>
               {post.imageUrls.map((url, i) => (
-                <img key={i} src={url} alt="" className={styles.image}
+                <img key={url} src={url} alt={`${post.userName}의 이미지 ${i + 1}`} className={styles.image}
                      onClick={(e) => e.stopPropagation()} />
               ))}
             </div>
@@ -100,8 +111,12 @@ export default function Post({ post, onUpdate, showComments }) {
       )}
 
       <div className={styles.actions}>
-        <button className={`${styles.action} ${liked ? styles.liked : ''}`}
-                onClick={toggleLike}>
+        <button
+          className={`${styles.action} ${liked ? styles.liked : ''}`}
+          onClick={toggleLike}
+          aria-label="좋아요"
+          aria-pressed={liked}
+        >
           ♥ {likeCount}
         </button>
         <button className={styles.action}
@@ -109,8 +124,8 @@ export default function Post({ post, onUpdate, showComments }) {
           💬 {post.commentCount ?? 0}
         </button>
         {!post.originalPost && (
-          <button className={styles.action} onClick={handleRepost}>
-            ↩ {post.repostCount ?? 0}
+          <button className={`${styles.action} ${reposted ? styles.reposted : ''}`} onClick={handleRepost}>
+            ↩ {repostCount}
           </button>
         )}
       </div>

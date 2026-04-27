@@ -11,6 +11,7 @@ export default function TimelinePage() {
   const [cursor, setCursor] = useState(null)
   const [hasMore, setHasMore] = useState(true)
   const loaderRef = useRef(null)
+  const loadingMoreRef = useRef(false)
   const MAX_LENGTH = 300
 
   useEffect(() => { fetchTimeline(null, true) }, [])
@@ -26,12 +27,16 @@ export default function TimelinePage() {
   }, [cursor, hasMore, submitting])
 
   const fetchTimeline = async (cur, reset) => {
+    if (!reset && loadingMoreRef.current) return
+    loadingMoreRef.current = true
     try {
       const newPosts = await getTimeline(cur) ?? []
       setPosts((prev) => reset ? newPosts : [...prev, ...newPosts])
       if (newPosts.length > 0) setCursor(newPosts[newPosts.length - 1].id)
       setHasMore(newPosts.length === 20)
-    } catch (_) {}
+    } catch (_) {} finally {
+      loadingMoreRef.current = false
+    }
   }
 
   const handleImageChange = (e) => {
