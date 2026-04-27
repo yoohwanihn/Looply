@@ -1,0 +1,9 @@
+.btn {
+  padding: 8px 20px; border-radius: 9999px; font-size: 0.9rem;
+  font-weight: 600; cursor: pointer; border: none; transition: all 0.15s;
+}
+.notFollowing { background: #1d9bf0; color: white; }
+.notFollowing:hover { background: #1a8cd8; }
+.following { background: transparent; color: #1d9bf0; border: 1px solid #1d9bf0; }
+.following:hover { background: #f0f8ff; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getProfile } from '../../api/users.js'
+import FollowButton from '../../components/FollowButton/FollowButton.jsx'
 import styles from './ProfilePage.module.css'
 
 export default function ProfilePage() {
@@ -46,6 +47,9 @@ export default function ProfilePage() {
           <button className={styles.editBtn} onClick={() => navigate('/profile/edit')}>
             프로필 수정
           </button>
+        )}
+        {String(myId) !== String(id) && (
+          <FollowButton targetId={Number(id)} />
         )}
       </div>
     </div>
