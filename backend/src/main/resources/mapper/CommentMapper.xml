@@ -29,7 +29,9 @@
         SELECT c.*, u.name AS user_name, u.profile_image_url AS user_profile_image_url
         FROM comments c JOIN users u ON c.user_id = u.id
         WHERE c.post_id = #{postId} AND c.is_deleted = false
+        <if test="cursor != null">AND c.id &gt; #{cursor}</if>
         ORDER BY c.created_at ASC
+        LIMIT #{size}
     </select>
 
     <update id="softDelete">

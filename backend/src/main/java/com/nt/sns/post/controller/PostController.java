@@ -1,5 +1,6 @@
 package com.nt.sns.post.controller;
 
+import com.nt.sns.common.SecurityUtils;
 import com.nt.sns.common.dto.ApiResponse;
 import com.nt.sns.post.dto.CommentResponse;
 import com.nt.sns.post.dto.CreateCommentRequest;
@@ -16,7 +17,6 @@ import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -81,11 +81,7 @@ public class PostController {
     public void deletePost(
             @PathVariable Long id,
             @AuthenticationPrincipal Long userId) {
-        String role = SecurityContextHolder.getContext().getAuthentication()
-                .getAuthorities().stream()
-                .findFirst()
-                .map(a -> a.getAuthority().replace("ROLE_", ""))
-                .orElse("USER");
+        String role = SecurityUtils.extractRole();
         postService.deletePost(id, userId, role);
     }
 
@@ -123,8 +119,11 @@ public class PostController {
 
     @Operation(summary = "댓글 목록 조회")
     @GetMapping("/{id}/comments")
-    public ApiResponse<List<CommentResponse>> getComments(@PathVariable Long id) {
-        return ApiResponse.ok(commentService.getComments(id));
+    public ApiResponse<List<CommentResponse>> getComments(
+            @PathVariable Long id,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "50") int size) {
+        return ApiResponse.ok(commentService.getComments(id, cursor, size));
     }
 
     @Operation(summary = "댓글 작성")

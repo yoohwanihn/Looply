@@ -1,11 +1,11 @@
 package com.nt.sns.post.controller;
 
+import com.nt.sns.common.SecurityUtils;
 import com.nt.sns.post.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Comment", description = "댓글 API (SFR-004)")
@@ -25,11 +25,7 @@ public class CommentController {
     public void deleteComment(
             @PathVariable Long id,
             @AuthenticationPrincipal Long userId) {
-        String role = SecurityContextHolder.getContext().getAuthentication()
-                .getAuthorities().stream()
-                .findFirst()
-                .map(a -> a.getAuthority().replace("ROLE_", ""))
-                .orElse("USER");
+        String role = SecurityUtils.extractRole();
         commentService.deleteComment(id, userId, role);
     }
 }

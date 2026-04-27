@@ -34,8 +34,8 @@ public class CommentService {
                 .orElseThrow();
     }
 
-    public List<CommentResponse> getComments(Long postId) {
-        return commentMapper.findByPostId(postId).stream()
+    public List<CommentResponse> getComments(Long postId, Long cursor, int size) {
+        return commentMapper.findByPostId(postId, cursor, Math.min(size, 50)).stream()
                 .map(this::toResponse).toList();
     }
 
