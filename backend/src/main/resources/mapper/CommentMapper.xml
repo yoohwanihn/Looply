@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.nt.sns.post.mapper.CommentMapper">
+
+    <resultMap id="commentResultMap" type="com.nt.sns.post.domain.Comment">
+        <id     property="id"                  column="id"/>
+        <result property="postId"              column="post_id"/>
+        <result property="userId"              column="user_id"/>
+        <result property="content"             column="content"/>
+        <result property="deleted"             column="is_deleted"/>
+        <result property="createdAt"           column="created_at"/>
+        <result property="userName"            column="user_name"/>
+        <result property="userProfileImageUrl" column="user_profile_image_url"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO comments (post_id, user_id, content) VALUES (#{postId}, #{userId}, #{content})
+    </insert>
+
+    <select id="findById" resultMap="commentResultMap">
+        SELECT c.*, u.name AS user_name, u.profile_image_url AS user_profile_image_url
+        FROM comments c JOIN users u ON c.user_id = u.id
+        WHERE c.id = #{id}
+    </select>
+
+    <select id="findByPostId" resultMap="commentResultMap">
+        SELECT c.*, u.name AS user_name, u.profile_image_url AS user_profile_image_url
+        FROM comments c JOIN users u ON c.user_id = u.id
+        WHERE c.post_id = #{postId} AND c.is_deleted = false
+        <if test="cursor != null">AND c.id &gt; #{cursor}</if>
+        ORDER BY c.created_at ASC
+        LIMIT #{size}
+    </select>
+
+    <update id="softDelete">
+        UPDATE comments SET is_deleted = true WHERE id = #{id}
+    </update>
+
+</mapper>

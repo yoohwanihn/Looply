@@ -1,8 +1,13 @@
 package com.nt.sns.post.controller;
 
+import com.nt.sns.common.SecurityUtils;
 import com.nt.sns.common.dto.ApiResponse;
+import com.nt.sns.post.dto.CommentResponse;
+import com.nt.sns.post.dto.CreateCommentRequest;
 import com.nt.sns.post.dto.PostResponse;
 import com.nt.sns.post.dto.UpdatePostRequest;
+import com.nt.sns.post.service.CommentService;
+import com.nt.sns.post.service.LikeService;
 import com.nt.sns.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,7 +17,6 @@ import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,9 +30,13 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+    private final LikeService likeService;
+    private final CommentService commentService;
 
-    public PostController(PostService postService) {
+    public PostController(PostService postService, LikeService likeService, CommentService commentService) {
         this.postService = postService;
+        this.likeService = likeService;
+        this.commentService = commentService;
     }
 
     @Operation(summary = "타임라인 조회 (커서 기반)")
@@ -73,11 +81,7 @@ public class PostController {
     public void deletePost(
             @PathVariable Long id,
             @AuthenticationPrincipal Long userId) {
-        String role = SecurityContextHolder.getContext().getAuthentication()
-                .getAuthorities().stream()
-                .findFirst()
-                .map(a -> a.getAuthority().replace("ROLE_", ""))
-                .orElse("USER");
+        String role = SecurityUtils.extractRole();
         postService.deletePost(id, userId, role);
     }
 
@@ -97,5 +101,38 @@ public class PostController {
             @PathVariable Long id,
             @AuthenticationPrincipal Long userId) {
         postService.undoRepost(id, userId);
+    }
+
+    @Operation(summary = "좋아요")
+    @PostMapping("/{id}/likes")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void like(@PathVariable Long id, @AuthenticationPrincipal Long userId) {
+        likeService.like(userId, id);
+    }
+
+    @Operation(summary = "좋아요 취소")
+    @DeleteMapping("/{id}/likes")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void unlike(@PathVariable Long id, @AuthenticationPrincipal Long userId) {
+        likeService.unlike(userId, id);
+    }
+
+    @Operation(summary = "댓글 목록 조회")
+    @GetMapping("/{id}/comments")
+    public ApiResponse<List<CommentResponse>> getComments(
+            @PathVariable Long id,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "50") int size) {
+        return ApiResponse.ok(commentService.getComments(id, cursor, size));
+    }
+
+    @Operation(summary = "댓글 작성")
+    @PostMapping("/{id}/comments")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<CommentResponse> createComment(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody CreateCommentRequest req) {
+        return ApiResponse.ok(commentService.createComment(id, userId, req.content()));
     }
 }
