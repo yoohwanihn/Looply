@@ -1,0 +1,5 @@
+.container { max-width: 600px; margin: 0 auto; padding: 16px; }
+.header { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+.header h2 { margin: 0; font-size: 1.1rem; }
+.back { background: none; border: none; cursor: pointer; font-size: 1rem; color: #555; }
+.loading { padding: 32px; text-align: center; color: #999; }
