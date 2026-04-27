@@ -13,12 +13,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class PostService {
 
     private static final String BUCKET_IMAGES = "sns-images";
     private static final int MAX_IMAGES = 4;
+    private static final Set<String> ALLOWED_IMAGE_TYPES = Set.of(
+        "image/jpeg", "image/png", "image/gif", "image/webp"
+    );
 
     private final PostMapper postMapper;
     private final BannedWordValidator bannedWordValidator;
@@ -52,9 +58,17 @@ public class PostService {
             for (int i = 0; i < valid.size(); i++) {
                 MultipartFile file = valid.get(i);
                 try {
-                    String objectName = post.getId() + "/" + i + "_" + file.getOriginalFilename();
+                    String contentType = file.getContentType();
+                    if (contentType == null || !ALLOWED_IMAGE_TYPES.contains(contentType)) {
+                        throw new BusinessException(ErrorCode.INVALID_INPUT);
+                    }
+                    String ext = Optional.ofNullable(file.getOriginalFilename())
+                        .filter(n -> n.contains("."))
+                        .map(n -> n.substring(n.lastIndexOf('.')))
+                        .orElse("");
+                    String objectName = post.getId() + "/" + i + "_" + UUID.randomUUID() + ext;
                     String url = storageService.upload(BUCKET_IMAGES, objectName,
-                            file.getInputStream(), file.getSize(), file.getContentType());
+                            file.getInputStream(), file.getSize(), contentType);
                     PostImage img = new PostImage();
                     img.setPostId(post.getId());
                     img.setImageUrl(url);

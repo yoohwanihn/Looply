@@ -7,10 +7,13 @@ import com.nt.sns.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +22,7 @@ import java.util.List;
 @Tag(name = "Post", description = "게시글 API (SFR-002~005)")
 @RestController
 @RequestMapping("/api/posts")
+@Validated
 public class PostController {
 
     private final PostService postService;
@@ -49,7 +53,7 @@ public class PostController {
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<PostResponse> createPost(
             @AuthenticationPrincipal Long userId,
-            @RequestParam("content") String content,
+            @RequestParam("content") @NotBlank @Size(max = 300) String content,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         return ApiResponse.ok(postService.createPost(userId, content, images, null));
     }
@@ -70,7 +74,10 @@ public class PostController {
             @PathVariable Long id,
             @AuthenticationPrincipal Long userId) {
         String role = SecurityContextHolder.getContext().getAuthentication()
-                .getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
+                .getAuthorities().stream()
+                .findFirst()
+                .map(a -> a.getAuthority().replace("ROLE_", ""))
+                .orElse("USER");
         postService.deletePost(id, userId, role);
     }
 
