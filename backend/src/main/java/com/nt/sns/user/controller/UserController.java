@@ -36,8 +36,10 @@ public class UserController {
 
     @Operation(summary = "특정 사용자 프로필 조회")
     @GetMapping("/{id}")
-    public ApiResponse<UserProfileResponse> getProfile(@PathVariable Long id) {
-        return ApiResponse.ok(userService.getProfileResponse(id));
+    public ApiResponse<UserProfileResponse> getProfile(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Long requesterId) {
+        return ApiResponse.ok(userService.getProfileResponse(id, requesterId));
     }
 
     @Operation(summary = "내 프로필 수정 (bio)")

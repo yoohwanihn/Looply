@@ -10,5 +10,6 @@ public record UserProfileResponse(
         String profileImageUrl,
         int followerCount,
         int followingCount,
-        int postCount
+        int postCount,
+        boolean isFollowing
 ) {}

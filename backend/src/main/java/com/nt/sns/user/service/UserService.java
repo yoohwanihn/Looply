@@ -2,6 +2,7 @@ package com.nt.sns.user.service;
 
 import com.nt.sns.common.exception.BusinessException;
 import com.nt.sns.common.exception.ErrorCode;
+import com.nt.sns.follow.mapper.FollowMapper;
 import com.nt.sns.storage.StorageService;
 import com.nt.sns.user.domain.User;
 import com.nt.sns.user.dto.UserProfileResponse;
@@ -20,10 +21,12 @@ public class UserService {
 
     private final UserMapper userMapper;
     private final StorageService storageService;
+    private final FollowMapper followMapper;
 
-    public UserService(UserMapper userMapper, StorageService storageService) {
+    public UserService(UserMapper userMapper, StorageService storageService, FollowMapper followMapper) {
         this.userMapper = userMapper;
         this.storageService = storageService;
+        this.followMapper = followMapper;
     }
 
     public User getUser(Long id) {
@@ -32,9 +35,13 @@ public class UserService {
     }
 
     public UserProfileResponse getProfileResponse(Long userId) {
+        return getProfileResponse(userId, null);
+    }
+
+    public UserProfileResponse getProfileResponse(Long userId, Long requesterId) {
         User user = userMapper.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-        return toResponse(user);
+        return toResponse(user, requesterId);
     }
 
     @Transactional
@@ -80,14 +87,16 @@ public class UserService {
                 user.getDepartment(), user.getPosition(), user.getProfileImageUrl());
     }
 
-    private UserProfileResponse toResponse(User user) {
+    private UserProfileResponse toResponse(User user, Long requesterId) {
         int followers = userMapper.countFollowers(user.getId());
         int following = userMapper.countFollowing(user.getId());
         int postCount = userMapper.countPosts(user.getId());
+        boolean isFollowing = requesterId != null && !requesterId.equals(user.getId())
+                && followMapper.existsFollow(requesterId, user.getId());
         return new UserProfileResponse(
                 user.getId(), user.getEmployeeNo(), user.getName(),
                 user.getDepartment(), user.getPosition(),
                 user.getBio(), user.getProfileImageUrl(),
-                followers, following, postCount);
+                followers, following, postCount, isFollowing);
     }
 }

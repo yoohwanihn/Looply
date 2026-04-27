@@ -49,7 +49,7 @@ export default function ProfilePage() {
           </button>
         )}
         {String(myId) !== String(id) && (
-          <FollowButton targetId={Number(id)} />
+          <FollowButton targetId={Number(id)} initialFollowing={profile.isFollowing ?? false} />
         )}
       </div>
     </div>
