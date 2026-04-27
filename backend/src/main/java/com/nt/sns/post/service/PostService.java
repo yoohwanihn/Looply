@@ -12,7 +12,7 @@ import com.nt.sns.storage.StorageService;
 import com.nt.sns.user.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -106,14 +106,12 @@ public class PostService {
         if (repostOfId == null) {
             final Long postIdFinal = post.getId();
             final Long userIdFinal = userId;
-            TransactionSynchronizationManager.registerSynchronization(
-                new TransactionSynchronizationAdapter() {
-                    @Override
-                    public void afterCommit() {
-                        timelinePublisher.publishNewPost(userIdFinal, postIdFinal);
-                    }
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    timelinePublisher.publishNewPost(userIdFinal, postIdFinal);
                 }
-            );
+            });
         }
 
         return getPostResponse(post.getId(), userId);
@@ -128,6 +126,8 @@ public class PostService {
         }
         bannedWordValidator.validate(content);
         postMapper.update(postId, content);
+        mentionMapper.deleteByPostId(postId);
+        saveMentions(postId, content);
         return getPostResponse(postId, userId);
     }
 
