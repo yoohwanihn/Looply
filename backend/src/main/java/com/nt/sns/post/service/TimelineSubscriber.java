@@ -16,11 +16,14 @@ public class TimelineSubscriber implements MessageListener {
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
-        String channel = new String(message.getChannel());
-        // channel 형식: "channel:timeline:{userId}"
-        String[] parts = channel.split(":");
-        if (parts.length < 3) return;
-        String userId = parts[2];
-        messagingTemplate.convertAndSendToUser(userId, "/queue/timeline", "new");
+        try {
+            String channel = new String(message.getChannel());
+            if (!channel.startsWith("channel:timeline:")) return;
+            String userId = channel.substring("channel:timeline:".length());
+            if (userId.isBlank()) return;
+            messagingTemplate.convertAndSendToUser(userId, "/queue/timeline", "new");
+        } catch (Exception e) {
+            // silent — pub/sub delivery failure should not crash the listener
+        }
     }
 }

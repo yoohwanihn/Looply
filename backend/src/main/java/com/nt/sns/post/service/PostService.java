@@ -9,6 +9,8 @@ import com.nt.sns.post.mapper.PostMapper;
 import com.nt.sns.storage.StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -85,9 +87,18 @@ public class PostService {
             }
         }
 
-        // 리포스트가 아닌 경우에만 타임라인에 발행
+        // 리포스트가 아닌 경우에만 타임라인에 발행 (DB 커밋 후 발행하여 race condition 방지)
         if (repostOfId == null) {
-            timelinePublisher.publishNewPost(userId, post.getId());
+            final Long postIdFinal = post.getId();
+            final Long userIdFinal = userId;
+            TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronizationAdapter() {
+                    @Override
+                    public void afterCommit() {
+                        timelinePublisher.publishNewPost(userIdFinal, postIdFinal);
+                    }
+                }
+            );
         }
 
         return getPostResponse(post.getId(), userId);

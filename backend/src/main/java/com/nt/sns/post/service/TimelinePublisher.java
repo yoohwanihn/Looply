@@ -21,7 +21,9 @@ public class TimelinePublisher {
     public void publishNewPost(Long authorId, Long postId) {
         List<Long> followerIds = followMapper.findFollowerIds(authorId);
         for (Long followerId : followerIds) {
-            redisTemplate.convertAndSend("channel:timeline:" + followerId, postId.toString());
+            try {
+                redisTemplate.convertAndSend("channel:timeline:" + followerId, postId.toString());
+            } catch (Exception ignored) {}
         }
     }
 }
