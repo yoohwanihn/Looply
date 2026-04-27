@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:swagger_test;DB_CLOSE_DELAY=-1;NON_KEYWORDS=value
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  flyway:
+    enabled: false
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: changeme_redis_password
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+minio:
+  endpoint: http://localhost:9100
+  access-key: minioadmin
+  secret-key: minioadmin123
+  public-url: http://localhost:9100
+  bucket-images: sns-images
+  bucket-avatars: sns-avatars
