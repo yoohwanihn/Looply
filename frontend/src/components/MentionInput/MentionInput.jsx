@@ -27,12 +27,13 @@ export default function MentionInput({ value, onChange, placeholder, maxLength, 
       setSuggestions([])
       return
     }
+    let cancelled = false
     const timer = setTimeout(() => {
       searchUsers(mentionQuery)
-        .then((res) => setSuggestions(res.data ?? []))
-        .catch(() => setSuggestions([]))
+        .then((res) => { if (!cancelled) setSuggestions(res.data ?? []) })
+        .catch(() => { if (!cancelled) setSuggestions([]) })
     }, 200)
-    return () => clearTimeout(timer)
+    return () => { cancelled = true; clearTimeout(timer) }
   }, [mentionQuery])
 
   const selectSuggestion = (user) => {

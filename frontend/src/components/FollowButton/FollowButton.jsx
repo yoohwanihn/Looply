@@ -8,16 +8,20 @@ export default function FollowButton({ targetId, initialFollowing, onToggle }) {
 
   const toggle = async () => {
     if (loading) return
+    const prev = following
+    setFollowing(!prev)
     setLoading(true)
     try {
-      if (following) {
+      if (prev) {
         await unfollow(targetId)
       } else {
         await follow(targetId)
       }
-      setFollowing(!following)
-      if (onToggle) onToggle(!following)
-    } catch (_) {} finally {
+      if (onToggle) onToggle(!prev)
+    } catch (_) {
+      setFollowing(prev)
+      alert(prev ? '언팔로우에 실패했습니다.' : '팔로우에 실패했습니다.')
+    } finally {
       setLoading(false)
     }
   }

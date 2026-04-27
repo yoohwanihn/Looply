@@ -34,10 +34,12 @@ public class UserService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     }
 
+    /** 내부 호출용 (프로필 변경 후 반환): isFollowing은 항상 false */
     public UserProfileResponse getProfileResponse(Long userId) {
         return getProfileResponse(userId, null);
     }
 
+    /** 외부 엔드포인트용: requesterId는 SecurityConfig의 anyRequest().authenticated()로 항상 non-null */
     public UserProfileResponse getProfileResponse(Long userId, Long requesterId) {
         User user = userMapper.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
