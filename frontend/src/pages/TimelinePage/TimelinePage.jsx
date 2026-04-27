@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPost, getTimeline } from '../../api/posts.js'
 import Post from '../../components/Post/Post.jsx'
+import MentionInput from '../../components/MentionInput/MentionInput.jsx'
 import styles from './TimelinePage.module.css'
 import { useWebSocket } from '../../hooks/useWebSocket.js'
 
@@ -70,11 +71,11 @@ export default function TimelinePage() {
       </header>
       <main className={styles.main}>
         <form className={styles.compose} onSubmit={handleSubmit}>
-          <textarea
-            className={styles.textarea}
-            placeholder="지금 무슨 생각을 하고 계신가요?"
+          <MentionInput
             value={content}
-            onChange={(e) => setContent(e.target.value.slice(0, MAX_LENGTH))}
+            onChange={setContent}
+            placeholder="지금 무슨 생각을 하고 계신가요? @이름으로 멘션"
+            maxLength={300}
             rows={3}
           />
           <div className={styles.composeFooter}>

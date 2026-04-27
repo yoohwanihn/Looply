@@ -2,14 +2,17 @@ package com.nt.sns.post.service;
 
 import com.nt.sns.common.exception.BusinessException;
 import com.nt.sns.common.exception.ErrorCode;
+import com.nt.sns.mention.MentionMapper;
+import com.nt.sns.mention.MentionParser;
 import com.nt.sns.post.domain.Post;
 import com.nt.sns.post.domain.PostImage;
 import com.nt.sns.post.dto.PostResponse;
 import com.nt.sns.post.mapper.PostMapper;
 import com.nt.sns.storage.StorageService;
+import com.nt.sns.user.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,15 +35,24 @@ public class PostService {
     private final BannedWordValidator bannedWordValidator;
     private final StorageService storageService;
     private final TimelinePublisher timelinePublisher;
+    private final MentionParser mentionParser;
+    private final MentionMapper mentionMapper;
+    private final UserMapper userMapper;
 
     public PostService(PostMapper postMapper,
                        BannedWordValidator bannedWordValidator,
                        StorageService storageService,
-                       TimelinePublisher timelinePublisher) {
+                       TimelinePublisher timelinePublisher,
+                       MentionParser mentionParser,
+                       MentionMapper mentionMapper,
+                       UserMapper userMapper) {
         this.postMapper = postMapper;
         this.bannedWordValidator = bannedWordValidator;
         this.storageService = storageService;
         this.timelinePublisher = timelinePublisher;
+        this.mentionParser = mentionParser;
+        this.mentionMapper = mentionMapper;
+        this.userMapper = userMapper;
     }
 
     @Transactional
@@ -87,18 +99,19 @@ public class PostService {
             }
         }
 
+        // 멘션 저장
+        saveMentions(post.getId(), content);
+
         // 리포스트가 아닌 경우에만 타임라인에 발행 (DB 커밋 후 발행하여 race condition 방지)
         if (repostOfId == null) {
             final Long postIdFinal = post.getId();
             final Long userIdFinal = userId;
-            TransactionSynchronizationManager.registerSynchronization(
-                new TransactionSynchronizationAdapter() {
-                    @Override
-                    public void afterCommit() {
-                        timelinePublisher.publishNewPost(userIdFinal, postIdFinal);
-                    }
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    timelinePublisher.publishNewPost(userIdFinal, postIdFinal);
                 }
-            );
+            });
         }
 
         return getPostResponse(post.getId(), userId);
@@ -113,6 +126,8 @@ public class PostService {
         }
         bannedWordValidator.validate(content);
         postMapper.update(postId, content);
+        mentionMapper.deleteByPostId(postId);
+        saveMentions(postId, content);
         return getPostResponse(postId, userId);
     }
 
@@ -181,5 +196,13 @@ public class PostService {
         Post repost = postMapper.findRepostByUser(userId, originalPostId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
         postMapper.softDelete(repost.getId());
+    }
+
+    private void saveMentions(Long postId, String content) {
+        List<String> names = mentionParser.extractMentions(content);
+        for (String name : names) {
+            userMapper.findByName(name)
+                    .ifPresent(u -> mentionMapper.insertPostMention(postId, u.getId()));
+        }
     }
 }

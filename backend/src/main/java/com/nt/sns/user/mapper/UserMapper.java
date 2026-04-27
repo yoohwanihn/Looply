@@ -28,6 +28,7 @@ public interface UserMapper {
     void updateDepartmentAndPosition(@Param("id") Long id,
                                      @Param("department") String department,
                                      @Param("position") String position);
+    boolean existsById(Long id);
     List<User> searchByName(@Param("keyword") String keyword);
     Optional<User> findByName(@Param("name") String name);
 }

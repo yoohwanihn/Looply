@@ -97,6 +97,10 @@
         LIMIT 10
     </select>
 
+    <select id="existsById" resultType="boolean">
+        SELECT EXISTS(SELECT 1 FROM users WHERE id = #{id})
+    </select>
+
     <select id="findByName" resultMap="userResultMap">
         SELECT * FROM users WHERE name = #{name} LIMIT 1
     </select>
