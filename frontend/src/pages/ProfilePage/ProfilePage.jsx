@@ -1,16 +1,21 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import client from '../../api/client.js'
+import { useParams, useNavigate } from 'react-router-dom'
+import { getProfile } from '../../api/users.js'
+import FollowButton from '../../components/FollowButton/FollowButton.jsx'
 import styles from './ProfilePage.module.css'
 
 export default function ProfilePage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [profile, setProfile] = useState(null)
+  const [error, setError] = useState(false)
+  const myId = localStorage.getItem('userId')
 
   useEffect(() => {
-    client.get(`/users/${id}`).then((res) => setProfile(res.data)).catch(() => {})
+    getProfile(id).then((res) => setProfile(res)).catch(() => setError(true))
   }, [id])
 
+  if (error) return <div className={styles.error}>프로필을 불러올 수 없습니다.</div>
   if (!profile) return <div className={styles.loading}>불러오는 중...</div>
 
   return (
@@ -19,7 +24,7 @@ export default function ProfilePage() {
         <div className={styles.avatar}>
           {profile.profileImageUrl
             ? <img src={profile.profileImageUrl} alt={profile.name} />
-            : <span>{profile.name[0]}</span>}
+            : <span>{profile.name?.[0] ?? '?'}</span>}
         </div>
         <h2 className={styles.name}>{profile.name}</h2>
         <p className={styles.dept}>{profile.department} · {profile.position}</p>
@@ -38,6 +43,14 @@ export default function ProfilePage() {
             <span>팔로잉</span>
           </div>
         </div>
+        {String(myId) === String(id) && (
+          <button className={styles.editBtn} onClick={() => navigate('/profile/edit')}>
+            프로필 수정
+          </button>
+        )}
+        {String(myId) !== String(id) && (
+          <FollowButton targetId={Number(id)} initialFollowing={profile.isFollowing ?? false} />
+        )}
       </div>
     </div>
   )

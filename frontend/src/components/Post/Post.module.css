@@ -98,3 +98,73 @@
 .liked {
   color: #e53e3e;
 }
+
+.repostBadge {
+  font-size: 12px;
+  color: #4a6cf7;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.deleteBtn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #bbb;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.deleteBtn:hover {
+  color: #e53e3e;
+  background: #fff0f0;
+}
+
+.images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.image {
+  width: calc(50% - 4px);
+  max-width: 260px;
+  border-radius: 8px;
+  object-fit: cover;
+  cursor: default;
+}
+
+.originalCard {
+  background: #f7f8fc;
+  border: 1px solid #e8eaff;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.originalMeta {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #555;
+}
+
+.originalMeta strong {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.originalContent {
+  font-size: 14px;
+  color: #2a2a2a;
+  line-height: 1.5;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

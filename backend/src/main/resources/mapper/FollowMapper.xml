@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.nt.sns.follow.mapper.FollowMapper">
+
+    <select id="findFollowerIds" resultType="long">
+        SELECT follower_id FROM follows WHERE following_id = #{userId}
+    </select>
+
+    <select id="existsFollow" resultType="boolean">
+        SELECT EXISTS(
+            SELECT 1 FROM follows
+            WHERE follower_id = #{followerId} AND following_id = #{followingId}
+        )
+    </select>
+
+    <insert id="insertFollow">
+        INSERT INTO follows (follower_id, following_id) VALUES (#{followerId}, #{followingId})
+    </insert>
+
+    <delete id="deleteFollow">
+        DELETE FROM follows WHERE follower_id = #{followerId} AND following_id = #{followingId}
+    </delete>
+
+</mapper>

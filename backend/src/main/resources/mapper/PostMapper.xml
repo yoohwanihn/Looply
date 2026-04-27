@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.nt.sns.post.mapper.PostMapper">
+
+    <resultMap id="postResultMap" type="com.nt.sns.post.domain.Post">
+        <id     property="id"                  column="id"/>
+        <result property="userId"              column="user_id"/>
+        <result property="content"             column="content"/>
+        <result property="repostOfId"          column="repost_of_id"/>
+        <result property="deleted"             column="is_deleted"/>
+        <result property="createdAt"           column="created_at"/>
+        <result property="updatedAt"           column="updated_at"/>
+        <result property="userName"            column="user_name"/>
+        <result property="department"          column="department"/>
+        <result property="userProfileImageUrl" column="user_profile_image_url"/>
+        <result property="likeCount"           column="like_count"/>
+        <result property="commentCount"        column="comment_count"/>
+        <result property="repostCount"         column="repost_count"/>
+        <result property="likedByMe"           column="liked_by_me"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO posts (user_id, content, repost_of_id)
+        VALUES (#{userId}, #{content}, #{repostOfId})
+    </insert>
+
+    <select id="findById" resultMap="postResultMap">
+        SELECT p.id, p.user_id, p.content, p.repost_of_id, p.is_deleted,
+               p.created_at, p.updated_at,
+               u.name AS user_name, u.department,
+               u.profile_image_url AS user_profile_image_url,
+               (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS like_count,
+               (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id AND c.is_deleted = false) AS comment_count,
+               (SELECT COUNT(*) FROM posts rp WHERE rp.repost_of_id = p.id AND rp.is_deleted = false) AS repost_count,
+               CASE WHEN #{requesterId} IS NOT NULL
+                    THEN (SELECT COUNT(*) FROM likes ml WHERE ml.post_id = p.id AND ml.user_id = #{requesterId}) > 0
+                    ELSE false END AS liked_by_me
+        FROM posts p
+        JOIN users u ON p.user_id = u.id
+        WHERE p.id = #{id} AND p.is_deleted = false
+    </select>
+
+    <update id="update">
+        UPDATE posts SET content = #{content}, updated_at = NOW() WHERE id = #{id}
+    </update>
+
+    <update id="softDelete">
+        UPDATE posts SET is_deleted = true, updated_at = NOW() WHERE id = #{id}
+    </update>
+
+    <insert id="insertImage" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO post_images (post_id, image_url, display_order)
+        VALUES (#{postId}, #{imageUrl}, #{displayOrder})
+    </insert>
+
+    <select id="findImageUrls" resultType="string">
+        SELECT image_url FROM post_images
+        WHERE post_id = #{postId}
+        ORDER BY display_order
+    </select>
+
+    <select id="findTimeline" resultMap="postResultMap">
+        SELECT p.id, p.user_id, p.content, p.repost_of_id, p.is_deleted,
+               p.created_at, p.updated_at,
+               u.name AS user_name, u.department,
+               u.profile_image_url AS user_profile_image_url,
+               (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS like_count,
+               (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id AND c.is_deleted = false) AS comment_count,
+               (SELECT COUNT(*) FROM posts rp WHERE rp.repost_of_id = p.id AND rp.is_deleted = false) AS repost_count,
+               (SELECT COUNT(*) FROM likes ml WHERE ml.post_id = p.id AND ml.user_id = #{requesterId}) > 0 AS liked_by_me
+        FROM posts p
+        JOIN users u ON p.user_id = u.id
+        WHERE p.is_deleted = false
+          AND (
+              p.user_id = #{requesterId}
+              OR p.user_id IN (SELECT following_id FROM follows WHERE follower_id = #{requesterId})
+          )
+          <if test="cursor != null">AND p.id &lt; #{cursor}</if>
+        ORDER BY p.id DESC
+        LIMIT #{size}
+    </select>
+
+    <select id="existsRepostByUser" resultType="boolean">
+        SELECT EXISTS(
+            SELECT 1 FROM posts
+            WHERE user_id = #{userId} AND repost_of_id = #{originalPostId} AND is_deleted = false
+        )
+    </select>
+
+    <select id="findRepostByUser" resultMap="postResultMap">
+        SELECT p.id, p.user_id, p.content, p.repost_of_id, p.is_deleted,
+               p.created_at, p.updated_at,
+               u.name AS user_name, u.department,
+               u.profile_image_url AS user_profile_image_url,
+               0 AS like_count, 0 AS comment_count, 0 AS repost_count, false AS liked_by_me
+        FROM posts p
+        JOIN users u ON p.user_id = u.id
+        WHERE p.user_id = #{userId} AND p.repost_of_id = #{originalPostId} AND p.is_deleted = false
+        LIMIT 1
+    </select>
+
+</mapper>

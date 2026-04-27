@@ -2,18 +2,31 @@ package com.nt.sns.user.service;
 
 import com.nt.sns.common.exception.BusinessException;
 import com.nt.sns.common.exception.ErrorCode;
+import com.nt.sns.follow.mapper.FollowMapper;
+import com.nt.sns.storage.StorageService;
 import com.nt.sns.user.domain.User;
+import com.nt.sns.user.dto.UserProfileResponse;
+import com.nt.sns.user.dto.UserSearchResponse;
 import com.nt.sns.user.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 public class UserService {
 
-    private final UserMapper userMapper;
+    private static final String BUCKET_AVATARS = "sns-avatars";
 
-    public UserService(UserMapper userMapper) {
+    private final UserMapper userMapper;
+    private final StorageService storageService;
+    private final FollowMapper followMapper;
+
+    public UserService(UserMapper userMapper, StorageService storageService, FollowMapper followMapper) {
         this.userMapper = userMapper;
+        this.storageService = storageService;
+        this.followMapper = followMapper;
     }
 
     public User getUser(Long id) {
@@ -21,10 +34,71 @@ public class UserService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     }
 
+    /** 내부 호출용 (프로필 변경 후 반환): isFollowing은 항상 false */
+    public UserProfileResponse getProfileResponse(Long userId) {
+        return getProfileResponse(userId, null);
+    }
+
+    /** 외부 엔드포인트용: requesterId는 SecurityConfig의 anyRequest().authenticated()로 항상 non-null */
+    public UserProfileResponse getProfileResponse(Long userId, Long requesterId) {
+        User user = userMapper.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        return toResponse(user, requesterId);
+    }
+
     @Transactional
-    public void updateProfile(Long userId, String bio, String profileImageUrl) {
+    public UserProfileResponse updateBio(Long userId, String bio) {
         userMapper.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-        userMapper.updateProfile(userId, bio, profileImageUrl);
+        userMapper.updateProfileBio(userId, bio);
+        return getProfileResponse(userId);
+    }
+
+    @Transactional
+    public UserProfileResponse uploadAvatar(Long userId, MultipartFile file) {
+        userMapper.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        try {
+            String objectName = userId + "/avatar.jpg";
+            String url = storageService.upload(BUCKET_AVATARS, objectName,
+                    file.getInputStream(), file.getSize(), file.getContentType());
+            userMapper.updateProfileImageUrl(userId, url);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.FILE_UPLOAD_FAILED);
+        }
+        return getProfileResponse(userId);
+    }
+
+    @Transactional
+    public UserProfileResponse adminUpdateUser(Long targetId, String department, String position) {
+        userMapper.findById(targetId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        userMapper.updateDepartmentAndPosition(targetId, department, position);
+        return getProfileResponse(targetId);
+    }
+
+    public List<UserSearchResponse> searchByName(String keyword) {
+        return userMapper.searchByName(keyword).stream()
+                .map(this::toSearchResponse)
+                .toList();
+    }
+
+    private UserSearchResponse toSearchResponse(User user) {
+        return new UserSearchResponse(
+                user.getId(), user.getEmployeeNo(), user.getName(),
+                user.getDepartment(), user.getPosition(), user.getProfileImageUrl());
+    }
+
+    private UserProfileResponse toResponse(User user, Long requesterId) {
+        int followers = userMapper.countFollowers(user.getId());
+        int following = userMapper.countFollowing(user.getId());
+        int postCount = userMapper.countPosts(user.getId());
+        boolean isFollowing = requesterId != null && !requesterId.equals(user.getId())
+                && followMapper.existsFollow(requesterId, user.getId());
+        return new UserProfileResponse(
+                user.getId(), user.getEmployeeNo(), user.getName(),
+                user.getDepartment(), user.getPosition(),
+                user.getBio(), user.getProfileImageUrl(),
+                followers, following, postCount, isFollowing);
     }
 }
