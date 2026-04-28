@@ -106,8 +106,24 @@
   font-weight: 500;
 }
 
-.deleteBtn {
+.editBtn {
   margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  color: #bbb;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.editBtn:hover {
+  color: #4a6cf7;
+  background: #eef0ff;
+}
+
+.deleteBtn {
   background: none;
   border: none;
   cursor: pointer;
@@ -121,6 +137,56 @@
 .deleteBtn:hover {
   color: #e53e3e;
   background: #fff0f0;
+}
+
+.editForm {
+  margin-bottom: 10px;
+}
+
+.editTextarea {
+  width: 100%;
+  border: 1.5px solid #4a6cf7;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 15px;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+.editActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.editCancel {
+  padding: 5px 14px;
+  background: none;
+  border: 1.5px solid #ddd;
+  border-radius: 16px;
+  font-size: 13px;
+  color: #888;
+  cursor: pointer;
+}
+
+.editSave {
+  padding: 5px 14px;
+  background: #4a6cf7;
+  border: none;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+}
+
+.editSave:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .images {

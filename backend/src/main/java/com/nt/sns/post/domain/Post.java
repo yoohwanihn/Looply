@@ -19,6 +19,7 @@ public class Post {
     private int commentCount;
     private int repostCount;
     private boolean likedByMe;
+    private boolean repostedByMe;
 
     public boolean isEdited() {
         return createdAt != null && updatedAt != null && updatedAt.isAfter(createdAt);
@@ -52,4 +53,6 @@ public class Post {
     public void setRepostCount(int repostCount) { this.repostCount = repostCount; }
     public boolean isLikedByMe() { return likedByMe; }
     public void setLikedByMe(boolean likedByMe) { this.likedByMe = likedByMe; }
+    public boolean isRepostedByMe() { return repostedByMe; }
+    public void setRepostedByMe(boolean repostedByMe) { this.repostedByMe = repostedByMe; }
 }
