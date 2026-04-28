@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { createPost, getTimeline } from '../../api/posts.js'
 import Post from '../../components/Post/Post.jsx'
 import MentionInput from '../../components/MentionInput/MentionInput.jsx'
@@ -6,6 +7,7 @@ import styles from './TimelinePage.module.css'
 import { useWebSocket } from '../../hooks/useWebSocket.js'
 
 export default function TimelinePage() {
+  const navigate = useNavigate()
   const [posts, setPosts] = useState([])
   const [content, setContent] = useState('')
   const [images, setImages] = useState([])
@@ -69,6 +71,16 @@ export default function TimelinePage() {
     <div className={styles.container}>
       <header className={styles.header}>
         <h2 className={styles.logo}>Looply</h2>
+        <button
+          className={styles.logoutButton}
+          onClick={() => {
+            localStorage.removeItem('accessToken')
+            localStorage.removeItem('refreshToken')
+            navigate('/login')
+          }}
+        >
+          로그아웃
+        </button>
       </header>
       <main className={styles.main}>
         <form className={styles.compose} onSubmit={handleSubmit}>
