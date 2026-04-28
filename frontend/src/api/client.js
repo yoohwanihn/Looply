@@ -14,7 +14,7 @@ client.interceptors.request.use((config) => {
 })
 
 client.interceptors.response.use(
-  (res) => res.data,
+  (res) => res.data?.success !== undefined ? res.data.data : res.data,
   (err) => {
     if (err.response?.status === 401) {
       localStorage.removeItem('accessToken')

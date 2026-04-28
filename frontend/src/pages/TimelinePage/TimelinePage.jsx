@@ -35,7 +35,8 @@ export default function TimelinePage() {
     if (!reset && loadingMoreRef.current) return
     loadingMoreRef.current = true
     try {
-      const newPosts = await getTimeline(cur) ?? []
+      const res = await getTimeline(cur)
+      const newPosts = Array.isArray(res) ? res : (res?.data ?? [])
       setPosts((prev) => reset ? newPosts : [...prev, ...newPosts])
       if (reset) setHasNew(false)
       if (newPosts.length > 0) setCursor(newPosts[newPosts.length - 1].id)
