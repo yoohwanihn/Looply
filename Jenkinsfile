@@ -69,10 +69,7 @@ pipeline {
         // ── C: 배포 (main / develop 브랜치만) ──────────
         stage('Deploy') {
             when {
-                anyOf {
-                    branch 'main'
-                    branch 'develop'
-                }
+                branch 'main'
             }
             steps {
                 sh '''
