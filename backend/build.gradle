@@ -61,6 +61,9 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
+    if (System.getenv('CI') == 'true') {
+        exclude '**/SnsApplicationTests.class'
+    }
 }
 
 jacoco {

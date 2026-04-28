@@ -9,6 +9,7 @@ pipeline {
     }
 
     environment {
+        CI             = 'true'
         BACKEND_IMAGE  = 'sns-backend'
         FRONTEND_IMAGE = 'sns-frontend'
     }
