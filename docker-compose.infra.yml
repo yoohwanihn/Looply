@@ -48,13 +48,18 @@ services:
     networks:
       - sns-net
 
-  # ── Jenkins 2.504.x LTS ───────────────────────────
+  # ── Jenkins 2.504.x LTS (Docker CLI 포함 커스텀 이미지) ─
   jenkins:
-    image: jenkins/jenkins:2.504-lts-jdk21
+    build:
+      context: ./infra/jenkins
+      dockerfile: Dockerfile
     container_name: sns-jenkins
     restart: unless-stopped
     environment:
       JENKINS_OPTS: "--httpPort=8090"
+      CASC_JENKINS_CONFIG: /var/jenkins_home/casc_configs
+      JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:-admin1234}
+      GITEA_ACCESS_TOKEN: ${GITEA_ACCESS_TOKEN:-}
       TZ: Asia/Seoul
     ports:
       - "8090:8090"
