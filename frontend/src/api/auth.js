@@ -7,6 +7,10 @@ export const login = async (data) => {
   if (res?.accessToken) {
     localStorage.setItem('accessToken', res.accessToken)
     localStorage.setItem('refreshToken', res.refreshToken)
+    try {
+      const payload = JSON.parse(atob(res.accessToken.split('.')[1]))
+      localStorage.setItem('userId', payload.sub)
+    } catch (_) {}
   }
   return res
 }

@@ -16,6 +16,7 @@ public record PostResponse(
         boolean likedByMe,
         int commentCount,
         int repostCount,
+        boolean repostedByMe,
         PostResponse originalPost,
         OffsetDateTime createdAt,
         OffsetDateTime updatedAt

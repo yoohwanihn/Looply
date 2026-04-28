@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { likePost, unlikePost, deletePost, repost, undoRepost } from '../../api/posts.js'
+import { likePost, unlikePost, deletePost, repost, undoRepost, updatePost } from '../../api/posts.js'
 import styles from './Post.module.css'
 
 export default function Post({ post, onUpdate, showComments }) {
@@ -9,6 +9,9 @@ export default function Post({ post, onUpdate, showComments }) {
   const [liked, setLiked] = useState(post.likedByMe ?? false)
   const [reposted, setReposted] = useState(post.repostedByMe ?? false)
   const [repostCount, setRepostCount] = useState(post.repostCount ?? 0)
+  const [editing, setEditing] = useState(false)
+  const [editContent, setEditContent] = useState(post.content ?? '')
+  const [saving, setSaving] = useState(false)
   const myId = Number(localStorage.getItem('userId'))
   const isOwner = post.userId === myId
 
@@ -34,6 +37,21 @@ export default function Post({ post, onUpdate, showComments }) {
       if (onUpdate) onUpdate()
     } catch (_) {
       alert('게시글 삭제에 실패했습니다.')
+    }
+  }
+
+  const handleEditSave = async (e) => {
+    e.stopPropagation()
+    if (!editContent.trim() || saving) return
+    setSaving(true)
+    try {
+      await updatePost(post.id, editContent)
+      setEditing(false)
+      if (onUpdate) onUpdate()
+    } catch (_) {
+      alert('수정에 실패했습니다.')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -82,6 +100,9 @@ export default function Post({ post, onUpdate, showComments }) {
           <span className={styles.dept}>{post.department}</span>
           <span className={styles.time}>{relativeTime(post.createdAt)}</span>
         </div>
+        {isOwner && !post.originalPost && (
+          <button className={styles.editBtn} onClick={(e) => { e.stopPropagation(); setEditing((v) => !v); setEditContent(post.content ?? '') }}>✏</button>
+        )}
         {isOwner && (
           <button className={styles.deleteBtn} onClick={handleDelete}>🗑</button>
         )}
@@ -94,6 +115,21 @@ export default function Post({ post, onUpdate, showComments }) {
             <span>{post.originalPost.department}</span>
           </div>
           <p className={styles.originalContent}>{post.originalPost.content}</p>
+        </div>
+      ) : editing ? (
+        <div className={styles.editForm} onClick={(e) => e.stopPropagation()}>
+          <textarea
+            className={styles.editTextarea}
+            value={editContent}
+            onChange={(e) => setEditContent(e.target.value.slice(0, 300))}
+            rows={3}
+          />
+          <div className={styles.editActions}>
+            <button className={styles.editCancel} onClick={(e) => { e.stopPropagation(); setEditing(false) }}>취소</button>
+            <button className={styles.editSave} onClick={handleEditSave} disabled={!editContent.trim() || saving}>
+              {saving ? '저장 중...' : '저장'}
+            </button>
+          </div>
         </div>
       ) : (
         <>
