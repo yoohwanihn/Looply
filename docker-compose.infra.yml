@@ -68,6 +68,8 @@ services:
       - jenkins_data:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
       - ./infra/jenkins/casc:/var/jenkins_home/casc_configs:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - sns-net
 
