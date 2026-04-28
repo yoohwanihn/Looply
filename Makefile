@@ -1,5 +1,5 @@
-COMPOSE_DEV  = docker compose -f docker-compose.yml
-COMPOSE_PROD = docker compose -f docker-compose.prod.yml
+COMPOSE_DEV   = docker compose -f docker-compose.yml
+COMPOSE_PROD  = docker compose -f docker-compose.yml -f docker-compose.prod.yml
 COMPOSE_INFRA = docker compose -f docker-compose.yml -f docker-compose.infra.yml
 
 .PHONY: dev prod infra down logs ps help
@@ -21,8 +21,8 @@ infra:
 
 ## 모든 컨테이너 종료
 down:
-	$(COMPOSE_PROD) down 2>/dev/null || true
-	$(COMPOSE_DEV) down 2>/dev/null || true
+	$(COMPOSE_PROD) down --remove-orphans 2>/dev/null || true
+	$(COMPOSE_DEV) down --remove-orphans 2>/dev/null || true
 
 ## 로그 확인 (make logs s=sns-backend)
 logs:

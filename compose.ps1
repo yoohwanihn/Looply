@@ -7,7 +7,7 @@ param(
 )
 
 $COMPOSE_DEV   = "docker compose -f docker-compose.yml"
-$COMPOSE_PROD  = "docker compose -f docker-compose.prod.yml"
+$COMPOSE_PROD  = "docker compose -f docker-compose.yml -f docker-compose.prod.yml"
 $COMPOSE_INFRA = "docker compose -f docker-compose.yml -f docker-compose.infra.yml"
 
 function Ensure-Network {

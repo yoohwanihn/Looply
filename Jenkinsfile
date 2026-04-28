@@ -73,7 +73,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    docker compose -f docker-compose.prod.yml up -d --wait
+                    docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --wait
                 '''
                 echo "배포 완료: http://localhost"
             }
