@@ -174,7 +174,7 @@ public class PostService {
                 post.getDepartment(), post.getUserProfileImageUrl(),
                 post.getContent(), imageUrls, post.isEdited(),
                 post.getLikeCount(), post.isLikedByMe(),
-                post.getCommentCount(), post.getRepostCount(),
+                post.getCommentCount(), post.getRepostCount(), post.isRepostedByMe(),
                 originalPost, post.getCreatedAt(), post.getUpdatedAt());
     }
 
