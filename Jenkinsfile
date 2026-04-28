@@ -76,10 +76,11 @@ pipeline {
             }
             steps {
                 sh '''
-                    docker compose -f docker-compose.prod.yml \
-                        up -d --force-recreate
+                    docker stop sns-backend sns-frontend 2>/dev/null || true
+                    docker rm   sns-backend sns-frontend 2>/dev/null || true
+                    docker compose -f docker-compose.prod.yml up -d
                 '''
-                echo "배포 완료: http://192.168.0.199"
+                echo "배포 완료: http://localhost"
             }
         }
     }
