@@ -9,11 +9,58 @@ jenkins:
   securityRealm:
     local:
       allowsSignup: false
+      users:
+        - id: admin
+          name: Administrator
+          password: "${JENKINS_ADMIN_PASSWORD}"
 
   authorizationStrategy:
     loggedInUsersCanDoAnything:
       allowAnonymousRead: false
 
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              scope: GLOBAL
+              id: gitea-credentials
+              description: "Gitea - yoohwanihn"
+              username: yoohwanihn
+              password: "${GITEA_ACCESS_TOKEN}"
+
 unclassified:
   location:
-    url: http://jenkins:8090/
+    url: "http://192.168.0.199:8090/"
+  timestamper:
+    allPipelines: true
+
+jobs:
+  - script: |
+      multibranchPipelineJob('sns-platform') {
+        displayName('SNS Platform')
+        description('사내 SNS 플랫폼 CI/CD 파이프라인')
+        branchSources {
+          git {
+            id('sns-platform-src')
+            remote('http://192.168.0.199:3003/yoohwanihn/sns-platform.git')
+            credentialsId('gitea-credentials')
+            includes('main develop feature/* fix/* release/*')
+          }
+        }
+        factory {
+          workflowBranchProjectFactory {
+            scriptPath('Jenkinsfile')
+          }
+        }
+        orphanedItemStrategy {
+          discardOldItems {
+            numToKeep(10)
+          }
+        }
+        triggers {
+          periodicFolderTrigger {
+            interval('5m')
+          }
+        }
+      }
