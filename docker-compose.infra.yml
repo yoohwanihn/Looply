@@ -7,7 +7,7 @@ services:
 
   # ── SonarQube 25.x Community ──────────────────────
   sonarqube:
-    image: sonarqube:25-community
+    image: sonarqube:lts-community
     container_name: sns-sonarqube
     restart: unless-stopped
     environment:
