@@ -73,9 +73,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    docker stop sns-backend sns-frontend 2>/dev/null || true
-                    docker rm   sns-backend sns-frontend 2>/dev/null || true
-                    docker compose -f docker-compose.prod.yml up -d
+                    docker compose -f docker-compose.prod.yml up -d --wait
                 '''
                 echo "배포 완료: http://localhost"
             }
