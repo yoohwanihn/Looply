@@ -4,9 +4,9 @@ export const signup = (data) => client.post('/auth/signup', data)
 
 export const login = async (data) => {
   const res = await client.post('/auth/login', data)
-  if (res.data?.accessToken) {
-    localStorage.setItem('accessToken', res.data.accessToken)
-    localStorage.setItem('refreshToken', res.data.refreshToken)
+  if (res?.accessToken) {
+    localStorage.setItem('accessToken', res.accessToken)
+    localStorage.setItem('refreshToken', res.refreshToken)
   }
   return res
 }
