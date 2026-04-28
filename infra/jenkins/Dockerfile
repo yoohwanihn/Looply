@@ -1,4 +1,4 @@
-FROM jenkins/jenkins:2.504-lts-jdk21
+FROM jenkins/jenkins:lts-jdk21
 
 USER root
 
@@ -16,9 +16,6 @@ RUN apt-get update && \
     apt-get update && \
     apt-get install -y docker-ce-cli docker-compose-plugin && \
     rm -rf /var/lib/apt/lists/*
-
-# jenkins 사용자를 docker 그룹에 추가
-RUN groupadd -f docker && usermod -aG docker jenkins
 
 USER jenkins
 

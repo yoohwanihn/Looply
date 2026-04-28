@@ -43,7 +43,7 @@ jobs:
         branchSources {
           git {
             id('sns-platform-src')
-            remote('http://host.docker.internal:3003/yoohwanihn/sns-platform.git')
+            remote('http://192.168.0.199:3003/yoohwanihn/sns-platform.git')
             credentialsId('gitea-credentials')
             includes('main develop feature/* fix/* release/*')
           }
