@@ -1,6 +1,8 @@
 package com.nt.sns.common.exception;
 
 import com.nt.sns.common.dto.ApiResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,6 +13,8 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Void>> handleBusinessException(BusinessException e) {
@@ -29,7 +33,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleUnknown(Exception e) {
-        // 상세 스택 트레이스 미노출 (SNF-004)
+        log.error("Unhandled exception", e);
         return ResponseEntity.internalServerError()
                 .body(ApiResponse.fail("서버 오류가 발생했습니다."));
     }
