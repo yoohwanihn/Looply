@@ -26,6 +26,7 @@ pipeline {
         stage('Backend Test') {
             steps {
                 dir('backend') {
+                    sh 'chmod +x gradlew'
                     sh './gradlew test --no-daemon'
                 }
             }
