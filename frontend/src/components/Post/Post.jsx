@@ -159,10 +159,13 @@ export default function Post({ post, onUpdate, showComments }) {
                 onClick={(e) => { e.stopPropagation(); navigate(`/posts/${post.id}`) }}>
           💬 {post.commentCount ?? 0}
         </button>
-        {!post.originalPost && (
+        {!post.originalPost && !isOwner && (
           <button className={`${styles.action} ${reposted ? styles.reposted : ''}`} onClick={handleRepost}>
             ↩ {repostCount}
           </button>
+        )}
+        {!post.originalPost && isOwner && (
+          <span className={styles.action} style={{ opacity: 0.35, cursor: 'default' }}>↩ {repostCount}</span>
         )}
       </div>
     </article>
