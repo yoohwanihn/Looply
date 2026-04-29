@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { createPost, getTimeline } from '../../api/posts.js'
+import { createPost, getAllPosts } from '../../api/posts.js'
 import Post from '../../components/Post/Post.jsx'
 import MentionInput from '../../components/MentionInput/MentionInput.jsx'
 import styles from './TimelinePage.module.css'
@@ -35,7 +35,7 @@ export default function TimelinePage() {
     if (!reset && loadingMoreRef.current) return
     loadingMoreRef.current = true
     try {
-      const res = await getTimeline(cur)
+      const res = await getAllPosts(cur)
       const newPosts = Array.isArray(res) ? res : (res?.data ?? [])
       setPosts((prev) => reset ? newPosts : [...prev, ...newPosts])
       if (reset) setHasNew(false)
