@@ -16,16 +16,17 @@
 }
 
 .body {
-  padding: 12px;
+  padding: 16px 12px 40px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
+/* ── 섹션 ── */
 .section { display: flex; flex-direction: column; gap: 8px; }
 
 .sectionTitle {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -40,105 +41,103 @@
   overflow: hidden;
 }
 
-/* ── 계정 정보 행 ── */
-.infoRow {
+/* ── 설정 행 (텍스트 + 토글) ── */
+.row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 13px 16px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--border-subtle);
+  gap: 16px;
 }
 
-.infoRow.last { border-bottom: none; }
+.row.last { border-bottom: none; }
 
-.infoLabel {
-  font-size: 14px;
-  color: var(--text-secondary);
-  flex-shrink: 0;
-  min-width: 60px;
-}
-
-.infoValue {
-  font-size: 14px;
-  color: var(--text);
-  font-weight: 500;
-  text-align: right;
-}
-
-/* ── 소개 필드 ── */
-.fieldRow {
+.rowText {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 14px 16px 0;
-  border-bottom: 1px solid var(--border-subtle);
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
 }
 
-.label {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.textarea {
-  background: none;
-  border: none;
-  outline: none;
+.rowLabel {
   font-size: 15px;
   color: var(--text);
-  resize: none;
-  line-height: 1.6;
-  font-family: inherit;
-  padding: 0 0 12px;
+  font-weight: 500;
 }
 
-.textarea::placeholder { color: var(--text-muted); }
+.rowDesc {
+  font-size: 12px;
+  color: var(--text-muted);
+}
 
-.bioFooter {
+.rowRight { flex-shrink: 0; }
+
+/* ── 액션 행 (버튼) ── */
+.actionRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
-}
-
-.count { font-size: 12px; color: var(--text-muted); }
-
-.saveBtn {
-  padding: 6px 18px;
-  background: var(--text);
-  color: var(--bg-elevated);
-  border: none;
-  border-radius: var(--radius-full);
-  font-size: 13px;
-  font-weight: 700;
-  transition: opacity 0.15s;
-}
-
-.saveBtn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-/* ── 링크 버튼 ── */
-.linkBtn {
-  background: none;
-  border: none;
-  color: var(--accent-blue);
-  font-size: 14px;
-  font-weight: 500;
-  padding: 4px 4px;
-  text-align: left;
-}
-
-/* ── 위험 행 ── */
-.dangerRow {
-  display: block;
-  width: 100%;
-  text-align: left;
   padding: 14px 16px;
+  width: 100%;
   background: none;
   border: none;
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--accent-like);
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: left;
+  cursor: pointer;
   transition: background 0.1s;
+  gap: 16px;
 }
 
-.dangerRow:hover { background: var(--bg-surface); }
+.actionRow:hover { background: var(--bg-surface); }
+.actionRow.last { border-bottom: none; }
+
+.actionRow .rowLabel { font-size: 15px; color: var(--text); font-weight: 500; }
+.actionRow .rowDesc { font-size: 12px; color: var(--text-muted); margin-top: 2px; display: block; }
+
+.actionRow.danger .rowLabel { color: var(--accent-like); }
+.actionRow.danger .rowDesc { color: color-mix(in srgb, var(--accent-like) 60%, transparent); }
+
+.chevron {
+  font-size: 20px;
+  color: var(--text-muted);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* ── 토글 스위치 ── */
+.toggle {
+  width: 48px;
+  height: 28px;
+  border-radius: 14px;
+  background: var(--border);
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.toggleOn { background: var(--text); }
+
+.toggleKnob {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: transform 0.2s;
+  display: block;
+}
+
+.toggleOn .toggleKnob { transform: translateX(20px); }
+
+/* ── 버전 ── */
+.version {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  padding-top: 8px;
+}
