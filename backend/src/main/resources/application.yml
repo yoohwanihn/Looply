@@ -3,9 +3,9 @@ spring:
     name: sns-platform
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/sns_db}
-    username: ${SPRING_DATASOURCE_USERNAME:sns_user}
-    password: ${SPRING_DATASOURCE_PASSWORD:changeme_db_password}
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${POSTGRES_DB:sns_db}
+    username: ${POSTGRES_USER:sns_user}
+    password: ${POSTGRES_PASSWORD:changeme_db_password}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -19,9 +19,9 @@ spring:
 
   data:
     redis:
-      host: ${SPRING_DATA_REDIS_HOST:localhost}
-      port: ${SPRING_DATA_REDIS_PORT:6379}
-      password: ${SPRING_DATA_REDIS_PASSWORD:changeme_redis_password}
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:changeme_redis_password}
       timeout: 2000ms
 
 mybatis:

@@ -62,21 +62,8 @@ services:
       target: dev
     container_name: sns-backend
     restart: unless-stopped
+    env_file: .env
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-sns_db}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-sns_user}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-changeme_db_password}
-      SPRING_DATA_REDIS_HOST: redis
-      SPRING_DATA_REDIS_PORT: 6379
-      SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD:-changeme_redis_password}
-      JWT_SECRET: ${JWT_SECRET:-changeme_jwt_secret_must_be_at_least_256bits_long_string_here}
-      JWT_ACCESS_EXPIRY: ${JWT_ACCESS_EXPIRY:-3600000}
-      JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY:-604800000}
-      MINIO_ENDPOINT: http://minio:9000
-      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin123}
-      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-http://localhost:9100}
       TZ: Asia/Seoul
     ports:
       - "8080:8080"
@@ -100,8 +87,8 @@ services:
     restart: unless-stopped
     command: server /data --console-address ":9101"
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin123}
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin123}
       TZ: Asia/Seoul
     ports:
       - "9100:9000"
