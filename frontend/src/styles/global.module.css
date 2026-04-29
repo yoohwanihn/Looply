@@ -1,3 +1,20 @@
+:global(:root) {
+  --bg: #0A0A0A;
+  --bg-elevated: #141414;
+  --bg-surface: #1C1C1C;
+  --border: #262626;
+  --border-subtle: #1A1A1A;
+  --text: #F5F5F4;
+  --text-secondary: #6B6B6A;
+  --text-muted: #3D3D3C;
+  --accent-like: #FF3B30;
+  --accent-repost: #34C759;
+  --accent-blue: #0095F6;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-full: 9999px;
+}
+
 :global(*) {
   box-sizing: border-box;
   margin: 0;
@@ -5,10 +22,12 @@
 }
 
 :global(body) {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background-color: #f5f5f5;
-  color: #1a1a1a;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
   line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
 :global(a) {
@@ -19,4 +38,23 @@
 :global(button) {
   cursor: pointer;
   font-family: inherit;
+}
+
+:global(input), :global(textarea) {
+  font-family: inherit;
+}
+
+:global(::selection) {
+  background: rgba(255,255,255,0.15);
+}
+
+:global(::-webkit-scrollbar) {
+  width: 4px;
+}
+:global(::-webkit-scrollbar-track) {
+  background: transparent;
+}
+:global(::-webkit-scrollbar-thumb) {
+  background: var(--border);
+  border-radius: 2px;
 }

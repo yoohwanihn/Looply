@@ -84,27 +84,31 @@ export default function TimelinePage() {
       </header>
       <main className={styles.main}>
         <form className={styles.compose} onSubmit={handleSubmit}>
-          <MentionInput
-            value={content}
-            onChange={setContent}
-            placeholder="지금 무슨 생각을 하고 계신가요? @이름으로 멘션"
-            maxLength={300}
-            rows={3}
-          />
-          <div className={styles.composeFooter}>
-            <label className={styles.imageLabel}>
-              🖼 이미지
-              <input type="file" accept="image/*" multiple hidden onChange={handleImageChange} />
-            </label>
-            {images.length > 0 && (
-              <span className={styles.imageCount}>{images.length}장 선택됨</span>
-            )}
-            <span className={`${styles.charCount} ${content.length >= MAX_LENGTH ? styles.limit : ''}`}>
-              {content.length} / {MAX_LENGTH}
-            </span>
-            <button className={styles.postButton} disabled={!content.trim() || submitting}>
-              게시하기
-            </button>
+          <div className={styles.composeAvatar}>나</div>
+          <div className={styles.composeRight}>
+            <MentionInput
+              value={content}
+              onChange={setContent}
+              placeholder="새로운 스레드 작성하기..."
+              maxLength={300}
+              rows={3}
+            />
+            <div className={styles.composeFooter}>
+              <label className={styles.imageLabel}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+                {images.length > 0 && <span className={styles.imageCount}>{images.length}장</span>}
+                <input type="file" accept="image/*" multiple hidden onChange={handleImageChange} />
+              </label>
+              <span className={`${styles.charCount} ${content.length >= MAX_LENGTH ? styles.limit : ''}`}>
+                {content.length}/{MAX_LENGTH}
+              </span>
+              <button className={styles.postButton} disabled={!content.trim() || submitting}>
+                게시
+              </button>
+            </div>
           </div>
         </form>
 

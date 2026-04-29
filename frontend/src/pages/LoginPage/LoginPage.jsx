@@ -26,7 +26,7 @@ export default function LoginPage() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <h1 className={styles.title}>NT SNS</h1>
+        <h1 className={styles.logo}>Looply</h1>
         <p className={styles.subtitle}>사내 소통 플랫폼</p>
 
         <form className={styles.form} onSubmit={handleSubmit}>
