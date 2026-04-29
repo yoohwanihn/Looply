@@ -8,9 +8,9 @@ spring:
     password: ${POSTGRES_PASSWORD:changeme_db_password}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
-      connection-timeout: 30000
+      maximum-pool-size: ${HIKARI_MAX_POOL_SIZE:10}
+      minimum-idle: ${HIKARI_MIN_IDLE:5}
+      connection-timeout: ${HIKARI_CONNECTION_TIMEOUT:30000}
 
   flyway:
     enabled: true
@@ -22,14 +22,14 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:changeme_redis_password}
-      timeout: 2000ms
+      timeout: ${REDIS_TIMEOUT:2000ms}
 
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
   configuration:
     map-underscore-to-camel-case: true
-    default-fetch-size: 100
-    default-statement-timeout: 30
+    default-fetch-size: ${MYBATIS_FETCH_SIZE:100}
+    default-statement-timeout: ${MYBATIS_STATEMENT_TIMEOUT:30}
 
 jwt:
   secret: ${JWT_SECRET:changeme_jwt_secret_must_be_at_least_256bits_long_string_here}
@@ -50,16 +50,22 @@ management:
         include: health,info,prometheus,metrics
   endpoint:
     health:
-      show-details: when-authorized
+      show-details: ${HEALTH_SHOW_DETAILS:when-authorized}
   prometheus:
     metrics:
       export:
         enabled: true
+
+logging:
+  level:
+    com.nt.sns: ${LOG_LEVEL_APP:INFO}
+    org.springframework.security: ${LOG_LEVEL_SECURITY:WARN}
+    org.mybatis: ${LOG_LEVEL_MYBATIS:WARN}
 
 minio:
   endpoint: ${MINIO_ENDPOINT:http://localhost:9100}
   access-key: ${MINIO_ACCESS_KEY:minioadmin}
   secret-key: ${MINIO_SECRET_KEY:minioadmin123}
   public-url: ${MINIO_PUBLIC_URL:http://localhost:9100}
-  bucket-images: sns-images
-  bucket-avatars: sns-avatars
+  bucket-images: ${MINIO_BUCKET_IMAGES:sns-images}
+  bucket-avatars: ${MINIO_BUCKET_AVATARS:sns-avatars}

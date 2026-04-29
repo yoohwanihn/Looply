@@ -5,9 +5,9 @@ spring:
 
 logging:
   level:
-    com.nt.sns: DEBUG
-    org.springframework.security: DEBUG
-    org.mybatis: DEBUG
+    com.nt.sns: ${LOG_LEVEL_APP:DEBUG}
+    org.springframework.security: ${LOG_LEVEL_SECURITY:DEBUG}
+    org.mybatis: ${LOG_LEVEL_MYBATIS:DEBUG}
 
 springdoc:
   swagger-ui:
