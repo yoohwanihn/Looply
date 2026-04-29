@@ -16,7 +16,7 @@ client.interceptors.request.use((config) => {
 client.interceptors.response.use(
   (res) => res.data?.success !== undefined ? res.data.data : res.data,
   (err) => {
-    if (err.response?.status === 401) {
+    if (err.response?.status === 401 && !window.location.pathname.startsWith('/login')) {
       localStorage.removeItem('accessToken')
       localStorage.removeItem('refreshToken')
       window.location.href = '/login'
