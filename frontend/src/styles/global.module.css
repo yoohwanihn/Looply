@@ -1,14 +1,14 @@
 :global(:root) {
-  --bg: #0A0A0A;
-  --bg-elevated: #141414;
-  --bg-surface: #1C1C1C;
-  --border: #262626;
-  --border-subtle: #1A1A1A;
-  --text: #F5F5F4;
-  --text-secondary: #6B6B6A;
-  --text-muted: #3D3D3C;
-  --accent-like: #FF3B30;
-  --accent-repost: #34C759;
+  --bg: #FFFFFF;
+  --bg-elevated: #FAFAFA;
+  --bg-surface: #F2F2F2;
+  --border: #DBDBDB;
+  --border-subtle: #EFEFEF;
+  --text: #000000;
+  --text-secondary: #737373;
+  --text-muted: #B0B0B0;
+  --accent-like: #FF3040;
+  --accent-repost: #00A550;
   --accent-blue: #0095F6;
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -45,7 +45,7 @@
 }
 
 :global(::selection) {
-  background: rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.1);
 }
 
 :global(::-webkit-scrollbar) {
