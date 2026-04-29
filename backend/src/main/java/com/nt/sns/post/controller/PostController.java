@@ -39,13 +39,22 @@ public class PostController {
         this.commentService = commentService;
     }
 
-    @Operation(summary = "타임라인 조회 (커서 기반)")
+    @Operation(summary = "타임라인 조회 (커서 기반) — 나 + 팔로잉")
     @GetMapping("/timeline")
     public ApiResponse<List<PostResponse>> getTimeline(
             @AuthenticationPrincipal Long userId,
             @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "20") int size) {
         return ApiResponse.ok(postService.getTimeline(userId, cursor, Math.min(size, 50)));
+    }
+
+    @Operation(summary = "팔로잉 피드 (팔로우한 사람 게시글만)")
+    @GetMapping("/following")
+    public ApiResponse<List<PostResponse>> getFollowingTimeline(
+            @AuthenticationPrincipal Long userId,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "20") int size) {
+        return ApiResponse.ok(postService.getFollowingTimeline(userId, cursor, Math.min(size, 50)));
     }
 
     @Operation(summary = "게시글 단건 조회")
