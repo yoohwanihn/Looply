@@ -5,7 +5,7 @@ import styles from './LoginPage.module.css'
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const [form, setForm] = useState({ email: 'test@company.com', password: 'password1' })
+  const [form, setForm] = useState({ email: 'jisoo.kim@company.com', password: 'Test1234!' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
