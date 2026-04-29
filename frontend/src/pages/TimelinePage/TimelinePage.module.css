@@ -3,46 +3,6 @@
   background: var(--bg);
 }
 
-.header {
-  position: sticky;
-  top: 0;
-  background: rgba(255,255,255,0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
-  padding: 0 16px;
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  z-index: 100;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.logo {
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--text);
-  letter-spacing: -0.5px;
-}
-
-.logoutButton {
-  padding: 5px 14px;
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-full);
-  font-size: 13px;
-  color: var(--text-secondary);
-  font-weight: 500;
-  transition: border-color 0.15s, color 0.15s;
-}
-
-.logoutButton:hover {
-  border-color: var(--text-secondary);
-  color: var(--text);
-}
-
 .main {
   max-width: 620px;
   margin: 0 auto;
@@ -111,14 +71,8 @@
   transition: opacity 0.15s;
 }
 
-.postButton:hover:not(:disabled) {
-  opacity: 0.85;
-}
-
-.postButton:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
+.postButton:hover:not(:disabled) { opacity: 0.85; }
+.postButton:disabled { opacity: 0.35; cursor: not-allowed; }
 
 .imageLabel {
   display: flex;
