@@ -161,6 +161,15 @@ public class PostService {
         return result;
     }
 
+    public List<PostResponse> getFollowingTimeline(Long requesterId, Long cursor, int size) {
+        List<Post> posts = postMapper.findFollowingTimeline(requesterId, cursor, size);
+        List<PostResponse> result = new ArrayList<>();
+        for (Post p : posts) {
+            result.add(toResponse(p, requesterId));
+        }
+        return result;
+    }
+
     public PostResponse toResponse(Post post, Long requesterId) {
         List<String> imageUrls = postMapper.findImageUrls(post.getId());
         PostResponse originalPost = null;

@@ -3,6 +3,9 @@ import client from './client.js'
 export const getTimeline = (cursor) =>
   client.get('/posts/timeline', { params: cursor ? { cursor } : {} })
 
+export const getFollowingTimeline = (cursor) =>
+  client.get('/posts/following', { params: cursor ? { cursor } : {} })
+
 export const getPost = (id) => client.get(`/posts/${id}`)
 
 export const createPost = (content, images) => {

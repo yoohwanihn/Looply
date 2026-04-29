@@ -2,6 +2,7 @@ package com.nt.sns.post.service;
 
 import com.nt.sns.common.exception.BusinessException;
 import com.nt.sns.common.exception.ErrorCode;
+import com.nt.sns.notification.service.NotificationService;
 import com.nt.sns.post.mapper.LikeMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,9 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class LikeService {
 
     private final LikeMapper likeMapper;
+    private final NotificationService notificationService;
 
-    public LikeService(LikeMapper likeMapper) {
+    public LikeService(LikeMapper likeMapper, NotificationService notificationService) {
         this.likeMapper = likeMapper;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -21,6 +24,7 @@ public class LikeService {
             throw new BusinessException(ErrorCode.ALREADY_LIKED);
         }
         likeMapper.insert(userId, postId);
+        notificationService.notifyLike(userId, postId);
     }
 
     @Transactional

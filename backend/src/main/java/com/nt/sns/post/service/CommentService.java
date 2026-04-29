@@ -2,6 +2,7 @@ package com.nt.sns.post.service;
 
 import com.nt.sns.common.exception.BusinessException;
 import com.nt.sns.common.exception.ErrorCode;
+import com.nt.sns.notification.service.NotificationService;
 import com.nt.sns.post.domain.Comment;
 import com.nt.sns.post.dto.CommentResponse;
 import com.nt.sns.post.mapper.CommentMapper;
@@ -15,10 +16,14 @@ public class CommentService {
 
     private final CommentMapper commentMapper;
     private final BannedWordValidator bannedWordValidator;
+    private final NotificationService notificationService;
 
-    public CommentService(CommentMapper commentMapper, BannedWordValidator bannedWordValidator) {
+    public CommentService(CommentMapper commentMapper,
+                          BannedWordValidator bannedWordValidator,
+                          NotificationService notificationService) {
         this.commentMapper = commentMapper;
         this.bannedWordValidator = bannedWordValidator;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -29,6 +34,7 @@ public class CommentService {
         comment.setUserId(userId);
         comment.setContent(content);
         commentMapper.insert(comment);
+        notificationService.notifyComment(userId, postId);
         return commentMapper.findById(comment.getId())
                 .map(this::toResponse)
                 .orElseThrow();

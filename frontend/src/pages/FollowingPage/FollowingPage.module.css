@@ -1,0 +1,49 @@
+.container {
+  max-width: 620px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.header {
+  padding: 20px 16px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.feed {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.empty p {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.empty span {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.loader {
+  text-align: center;
+  padding: 24px 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
