@@ -1,11 +1,15 @@
 package com.nt.sns.follow.controller;
 
+import com.nt.sns.common.dto.ApiResponse;
+import com.nt.sns.follow.dto.FollowUserResponse;
 import com.nt.sns.follow.service.FollowService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "Follow", description = "팔로우 API (SFR-006)")
 @RestController
@@ -34,5 +38,17 @@ public class FollowController {
             @PathVariable Long id,
             @AuthenticationPrincipal Long userId) {
         followService.unfollow(userId, id);
+    }
+
+    @Operation(summary = "내가 팔로우하는 사람 목록")
+    @GetMapping("/me/following")
+    public ApiResponse<List<FollowUserResponse>> getFollowing(@AuthenticationPrincipal Long userId) {
+        return ApiResponse.ok(followService.getFollowing(userId));
+    }
+
+    @Operation(summary = "나를 팔로우하는 사람 목록")
+    @GetMapping("/me/followers")
+    public ApiResponse<List<FollowUserResponse>> getFollowers(@AuthenticationPrincipal Long userId) {
+        return ApiResponse.ok(followService.getFollowers(userId));
     }
 }

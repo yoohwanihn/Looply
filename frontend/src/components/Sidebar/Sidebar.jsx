@@ -17,19 +17,21 @@ const SearchIcon = () => (
   </svg>
 )
 
-const CreateIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 20h9"/>
-    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-  </svg>
-)
-
 const FollowingIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
     <circle cx="9" cy="7" r="4"/>
     <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
     <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+  </svg>
+)
+
+const ManageIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <line x1="19" y1="8" x2="19" y2="14"/>
+    <line x1="22" y1="11" x2="16" y2="11"/>
   </svg>
 )
 
@@ -92,8 +94,8 @@ export default function Sidebar() {
       <nav className={styles.nav}>
         {navItem('/', <HomeIcon />, '홈', true)}
         {navItem('/search', <SearchIcon />, '검색')}
-        {navItem('/', <CreateIcon />, '새 게시글', true)}
         {navItem('/following', <FollowingIcon />, '팔로잉')}
+        {navItem('/follow-manage', <ManageIcon />, '팔로잉 관리')}
         {navItem('/notifications', <BellIcon />, '알림')}
         {navItem(`/profile/${myId()}`, <ProfileIcon />, '프로필')}
       </nav>

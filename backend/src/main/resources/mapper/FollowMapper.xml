@@ -23,4 +23,34 @@
         DELETE FROM follows WHERE follower_id = #{followerId} AND following_id = #{followingId}
     </delete>
 
+    <resultMap id="followUserResultMap" type="com.nt.sns.follow.dto.FollowUserResponse">
+        <result property="id"              column="id"/>
+        <result property="name"            column="name"/>
+        <result property="department"      column="department"/>
+        <result property="position"        column="position"/>
+        <result property="profileImageUrl" column="profile_image_url"/>
+        <result property="isFollowing"     column="is_following"/>
+    </resultMap>
+
+    <select id="findFollowingList" resultMap="followUserResultMap">
+        SELECT u.id, u.name, u.department, u.position, u.profile_image_url,
+               true AS is_following
+        FROM follows f
+        JOIN users u ON u.id = f.following_id
+        WHERE f.follower_id = #{userId}
+        ORDER BY f.created_at DESC
+    </select>
+
+    <select id="findFollowersList" resultMap="followUserResultMap">
+        SELECT u.id, u.name, u.department, u.position, u.profile_image_url,
+               EXISTS(
+                 SELECT 1 FROM follows f2
+                 WHERE f2.follower_id = #{userId} AND f2.following_id = u.id
+               ) AS is_following
+        FROM follows f
+        JOIN users u ON u.id = f.follower_id
+        WHERE f.following_id = #{userId}
+        ORDER BY f.created_at DESC
+    </select>
+
 </mapper>
