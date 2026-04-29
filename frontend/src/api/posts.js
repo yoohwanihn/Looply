@@ -1,5 +1,8 @@
 import client from './client.js'
 
+export const getAllPosts = (cursor) =>
+  client.get('/posts', { params: cursor ? { cursor } : {} })
+
 export const getTimeline = (cursor) =>
   client.get('/posts/timeline', { params: cursor ? { cursor } : {} })
 

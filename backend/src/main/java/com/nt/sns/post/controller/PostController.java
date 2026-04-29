@@ -39,6 +39,15 @@ public class PostController {
         this.commentService = commentService;
     }
 
+    @Operation(summary = "전체 게시글 조회 (커서 기반) — 모든 사용자")
+    @GetMapping
+    public ApiResponse<List<PostResponse>> getAllPosts(
+            @AuthenticationPrincipal Long userId,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "20") int size) {
+        return ApiResponse.ok(postService.getAllPosts(userId, cursor, Math.min(size, 50)));
+    }
+
     @Operation(summary = "타임라인 조회 (커서 기반) — 나 + 팔로잉")
     @GetMapping("/timeline")
     public ApiResponse<List<PostResponse>> getTimeline(

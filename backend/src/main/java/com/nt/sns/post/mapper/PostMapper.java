@@ -26,6 +26,10 @@ public interface PostMapper {
                                      @Param("cursor") Long cursor,
                                      @Param("size") int size);
 
+    List<Post> findAllPosts(@Param("requesterId") Long requesterId,
+                            @Param("cursor") Long cursor,
+                            @Param("size") int size);
+
     boolean existsRepostByUser(@Param("userId") Long userId, @Param("originalPostId") Long originalPostId);
     Optional<Post> findRepostByUser(@Param("userId") Long userId, @Param("originalPostId") Long originalPostId);
 }
