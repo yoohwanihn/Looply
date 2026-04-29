@@ -72,7 +72,7 @@ Looply는 팀 내 실시간 정보 공유와 소통을 위한 셀프 호스팅 S
 | **테스트** | JUnit 5 + Mockito + JaCoCo | — |
 | **DevOps** | Docker + Docker Compose | 27.x / 2.x |
 | | Jenkins LTS (JDK21) | lts-jdk21 |
-| | SonarQube Community | 25.x |
+| | SonarQube Community | lts-community |
 
 ---
 
@@ -111,7 +111,7 @@ Jenkins Multi-Branch Pipeline
     ├─ A. Backend Test   (./gradlew test)
     ├─ B. Backend Build  (./gradlew bootJar)
     ├─ B. Docker Build   (sns-backend:latest, sns-frontend:latest)
-    └─ C. Deploy         (main/develop 브랜치만, docker compose)
+    └─ C. Deploy         (main 브랜치만, docker compose)
 ```
 
 ---
@@ -122,39 +122,59 @@ Jenkins Multi-Branch Pipeline
 
 - Docker 27.x 이상
 - Docker Compose 2.x 이상
+- WSL2 (Windows 환경) 또는 Linux / macOS
 
-### 앱 실행 (개발 환경)
+### 빠른 실행
+
+프로젝트 루트에서 `make` 명령어로 환경을 선택해 실행합니다.
+
+**WSL / Linux / macOS**
 
 ```bash
-# 저장소 클론
 git clone https://github.com/yoohwanihn/Looply.git
 cd Looply
 
-# 환경변수 확인 (.env 파일이 이미 포함되어 있음)
-# 필요 시 값 수정
-vi .env
+make dev     # 개발 환경 (소스 빌드, 포트 5173)
+make prod    # 프로덕션 환경 (Jenkins 빌드 이미지, 포트 80)
+make infra   # 개발 환경 + Jenkins·SonarQube·Grafana 등 인프라 포함
+make down    # 전체 종료
+make ps      # 컨테이너 상태 확인
+```
 
-# 서비스 기동
-docker compose up -d
+**Windows PowerShell**
+
+```powershell
+# 처음 한 번만 실행 (스크립트 실행 허용)
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+
+.\compose.ps1 dev
+.\compose.ps1 prod
+.\compose.ps1 infra
+.\compose.ps1 down
 ```
 
 ### 접속 주소
 
+#### 개발 환경 (`make dev`)
+
 | 서비스 | 주소 | 설명 |
 |---|---|---|
-| 프론트엔드 | http://localhost:5173 | React 앱 |
+| 프론트엔드 | http://localhost:5173 | React 앱 (Vite dev server) |
 | 백엔드 API | http://localhost:8080 | Spring Boot |
 | Swagger UI | http://localhost:8080/swagger-ui.html | API 문서 |
-| MinIO 콘솔 | http://localhost:9101 | 파일 스토리지 |
+| MinIO 콘솔 | http://localhost:9101 | 파일 스토리지 관리 |
 | 헬스체크 | http://localhost:8080/actuator/health | |
 
-### 인프라 서비스 (선택)
+#### 프로덕션 환경 (`make prod`)
 
-Jenkins · SonarQube · Kafka · Prometheus · Grafana가 필요한 경우:
+| 서비스 | 주소 | 설명 |
+|---|---|---|
+| 프론트엔드 | http://localhost | React 앱 (Nginx, 포트 80) |
+| 백엔드 API | http://localhost:8080 | Spring Boot |
+| Swagger UI | http://localhost:8080/swagger-ui.html | API 문서 |
+| MinIO 콘솔 | http://localhost:9101 | 파일 스토리지 관리 |
 
-```bash
-docker compose -f docker-compose.yml -f docker-compose.infra.yml up -d
-```
+#### 인프라 서비스 (`make infra`)
 
 | 서비스 | 주소 | 기본 계정 |
 |---|---|---|
@@ -162,6 +182,7 @@ docker compose -f docker-compose.yml -f docker-compose.infra.yml up -d
 | SonarQube | http://localhost:9000 | admin / admin |
 | Grafana | http://localhost:3000 | admin / admin |
 | Prometheus | http://localhost:9090 | — |
+| Kafka | localhost:9092 | — |
 
 ---
 
@@ -206,14 +227,17 @@ infra/jenkins/
 ### Jenkins 시작
 
 ```bash
-# Jenkins만 시작
+# 전체 인프라(Jenkins 포함) 시작
+make infra
+
+# Jenkins만 단독 시작
 docker compose -f docker-compose.yml -f docker-compose.infra.yml up -d jenkins
 
 # 이미지 재빌드가 필요한 경우 (Dockerfile/plugins.txt 변경 시)
 docker compose -f docker-compose.yml -f docker-compose.infra.yml up -d --build jenkins
 
 # 로그 확인
-docker logs -f sns-jenkins
+make logs s=sns-jenkins
 ```
 
 ### Gitea 액세스 토큰 발급
@@ -248,19 +272,19 @@ Jenkins 시작 시 `infra/jenkins/casc/jenkins.yaml`이 자동으로 적용됩�
 | **Backend Test** | 전체 브랜치 | `./gradlew test` + JUnit 리포트 |
 | **Backend Build** | 전체 브랜치 | `./gradlew bootJar` |
 | **Docker Build** | 전체 브랜치 | `sns-backend:latest`, `sns-frontend:latest` 이미지 빌드 |
-| **Deploy** | `main`, `develop` 만 | `docker compose -f docker-compose.prod.yml up -d` |
+| **Deploy** | `main` 만 | `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d` |
 
 ### 프로덕션 배포
 
-`main` 또는 `develop` 브랜치 빌드 성공 시 자동 배포됩니다.  
-배포 compose 파일: `docker-compose.prod.yml`
+`main` 브랜치 빌드 성공 시 자동 배포됩니다. (`develop` 이하 브랜치는 빌드만 수행)
+
+수동 배포:
 
 ```bash
-# 수동 배포도 가능
-docker compose -f docker-compose.prod.yml up -d
+make prod
 ```
 
-> 전제 조건: `sns-net` 네트워크 + db / redis / minio 구동 중
+> `docker-compose.yml`(db·redis·minio)과 `docker-compose.prod.yml`(앱)을 병합해 실행합니다.
 
 ### 브랜치 스캔 주기
 
@@ -277,7 +301,7 @@ docker compose -f docker-compose.prod.yml up -d
 docker compose -f docker-compose.yml -f docker-compose.infra.yml down jenkins
 docker volume rm sns-platform_jenkins_data
 docker rmi sns-platform-jenkins
-docker compose -f docker-compose.yml -f docker-compose.infra.yml up -d --build jenkins
+make infra
 ```
 
 ---
@@ -347,9 +371,11 @@ Looply/
 ├── .env                      # 환경변수 (실제 값)
 ├── .env.example              # 환경변수 예시
 ├── Jenkinsfile               # CI/CD 파이프라인 정의
-├── docker-compose.yml        # 앱 서비스 (db, redis, minio, backend, frontend)
+├── Makefile                  # 환경별 실행 단축 명령 (WSL/Linux/macOS)
+├── compose.ps1               # 환경별 실행 단축 명령 (Windows PowerShell)
+├── docker-compose.yml        # 기본 서비스 (db, redis, minio, 개발용 앱)
 ├── docker-compose.infra.yml  # 인프라 서비스 (Jenkins, SonarQube, Kafka 등)
-├── docker-compose.prod.yml   # 프로덕션 배포용 (prod 이미지 사용)
+├── docker-compose.prod.yml   # 프로덕션 앱 오버라이드 (prod 이미지, 앱만 정의)
 ├── backend/
 │   ├── build.gradle
 │   ├── src/main/java/com/nt/sns/
