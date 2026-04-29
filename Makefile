@@ -2,7 +2,11 @@ COMPOSE_DEV   = docker compose -f docker-compose.yml
 COMPOSE_PROD  = docker compose -f docker-compose.yml -f docker-compose.prod.yml
 COMPOSE_INFRA = docker compose -f docker-compose.yml -f docker-compose.infra.yml
 
+.DEFAULT_GOAL := help
 .PHONY: dev prod infra down logs ps help
+
+.DEFAULT:
+	@$(MAKE) help
 
 ## 개발 환경 실행 (소스 직접 빌드)
 dev:
