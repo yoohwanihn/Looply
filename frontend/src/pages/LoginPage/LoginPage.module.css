@@ -3,84 +3,90 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: var(--bg);
+  padding: 24px;
 }
 
 .card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 48px 40px;
   width: 100%;
-  max-width: 400px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+  max-width: 380px;
 }
 
-.title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #1a1a2e;
+.logo {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--text);
   text-align: center;
-  margin-bottom: 4px;
+  letter-spacing: -1.5px;
+  margin-bottom: 6px;
 }
 
 .subtitle {
   text-align: center;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 14px;
-  margin-bottom: 32px;
+  margin-bottom: 40px;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .label {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  color: #444;
+  color: var(--text-secondary);
 }
 
 .input {
-  padding: 10px 14px;
-  border: 1.5px solid #ddd;
-  border-radius: 8px;
+  padding: 13px 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   font-size: 15px;
+  color: var(--text);
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.15s;
 }
 
 .input:focus {
-  border-color: #4a6cf7;
+  border-color: var(--text-secondary);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
 }
 
 .error {
-  color: #e53e3e;
+  color: var(--accent-like);
   font-size: 13px;
   text-align: center;
+  padding: 4px 0;
 }
 
 .button {
   margin-top: 8px;
-  padding: 12px;
-  background: #4a6cf7;
-  color: #fff;
+  padding: 14px;
+  background: var(--text);
+  color: var(--bg);
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  transition: background 0.2s, opacity 0.2s;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  transition: opacity 0.15s;
 }
 
 .button:hover:not(:disabled) {
-  background: #3a5ce6;
+  opacity: 0.85;
 }
 
 .button:disabled {
-  opacity: 0.6;
+  opacity: 0.4;
   cursor: not-allowed;
 }
