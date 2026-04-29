@@ -64,6 +64,20 @@ pipeline {
                         ./frontend
                 """
             }
+            post {
+                success {
+                    // latest + 최근 3개 빌드만 유지, 나머지 삭제
+                    sh '''
+                        for IMAGE in sns-backend sns-frontend; do
+                            docker images "$IMAGE" --format "{{.Tag}}" \
+                                | grep -E '^[0-9]+$' \
+                                | sort -n \
+                                | head -n -3 \
+                                | xargs -I {} docker rmi "$IMAGE:{}" || true
+                        done
+                    '''
+                }
+            }
         }
 
         // ── C: 배포 (main / develop 브랜치만) ──────────
