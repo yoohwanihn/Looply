@@ -5,7 +5,10 @@ import TimelinePage from './pages/TimelinePage/TimelinePage.jsx'
 import ProfilePage from './pages/ProfilePage/ProfilePage.jsx'
 import ProfileEditPage from './pages/ProfileEditPage/ProfileEditPage.jsx'
 import PostDetailPage from './pages/PostDetailPage/PostDetailPage.jsx'
-import PlaceholderPage from './pages/PlaceholderPage/PlaceholderPage.jsx'
+import SearchPage from './pages/SearchPage/SearchPage.jsx'
+import FollowingPage from './pages/FollowingPage/FollowingPage.jsx'
+import NotificationsPage from './pages/NotificationsPage/NotificationsPage.jsx'
+import SettingsPage from './pages/SettingsPage/SettingsPage.jsx'
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem('accessToken')
@@ -26,10 +29,10 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<AuthLayout><TimelinePage /></AuthLayout>} />
-        <Route path="/search" element={<AuthLayout><PlaceholderPage title="검색" /></AuthLayout>} />
-        <Route path="/following" element={<AuthLayout><PlaceholderPage title="팔로잉" /></AuthLayout>} />
-        <Route path="/notifications" element={<AuthLayout><PlaceholderPage title="알림" /></AuthLayout>} />
-        <Route path="/settings" element={<AuthLayout><PlaceholderPage title="설정" /></AuthLayout>} />
+        <Route path="/search" element={<AuthLayout><SearchPage /></AuthLayout>} />
+        <Route path="/following" element={<AuthLayout><FollowingPage /></AuthLayout>} />
+        <Route path="/notifications" element={<AuthLayout><NotificationsPage /></AuthLayout>} />
+        <Route path="/settings" element={<AuthLayout><SettingsPage /></AuthLayout>} />
         <Route path="/profile/edit" element={<AuthLayout><ProfileEditPage /></AuthLayout>} />
         <Route path="/profile/:id" element={<AuthLayout><ProfilePage /></AuthLayout>} />
         <Route path="/posts/:id" element={<AuthLayout><PostDetailPage /></AuthLayout>} />

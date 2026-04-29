@@ -3,6 +3,7 @@ package com.nt.sns.follow.service;
 import com.nt.sns.common.exception.BusinessException;
 import com.nt.sns.common.exception.ErrorCode;
 import com.nt.sns.follow.mapper.FollowMapper;
+import com.nt.sns.notification.service.NotificationService;
 import com.nt.sns.user.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,10 +13,13 @@ public class FollowService {
 
     private final FollowMapper followMapper;
     private final UserMapper userMapper;
+    private final NotificationService notificationService;
 
-    public FollowService(FollowMapper followMapper, UserMapper userMapper) {
+    public FollowService(FollowMapper followMapper, UserMapper userMapper,
+                         NotificationService notificationService) {
         this.followMapper = followMapper;
         this.userMapper = userMapper;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -30,6 +34,7 @@ public class FollowService {
             throw new BusinessException(ErrorCode.ALREADY_FOLLOWING);
         }
         followMapper.insertFollow(followerId, followingId);
+        notificationService.notifyFollow(followerId, followingId);
     }
 
     @Transactional

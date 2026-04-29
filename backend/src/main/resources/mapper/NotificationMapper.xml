@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.nt.sns.notification.mapper.NotificationMapper">
+
+    <resultMap id="notificationResultMap" type="com.nt.sns.notification.domain.Notification">
+        <id     property="id"                     column="id"/>
+        <result property="recipientId"             column="recipient_id"/>
+        <result property="senderId"                column="sender_id"/>
+        <result property="senderName"              column="sender_name"/>
+        <result property="senderProfileImageUrl"   column="sender_profile_image_url"/>
+        <result property="type"                    column="type"/>
+        <result property="resourceType"            column="resource_type"/>
+        <result property="resourceId"              column="resource_id"/>
+        <result property="read"                    column="is_read"/>
+        <result property="createdAt"               column="created_at"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO notifications (recipient_id, sender_id, type, resource_type, resource_id)
+        VALUES (#{recipientId}, #{senderId}, #{type}, #{resourceType}, #{resourceId})
+    </insert>
+
+    <select id="findByRecipient" resultMap="notificationResultMap">
+        SELECT n.id, n.recipient_id, n.sender_id,
+               u.name AS sender_name,
+               u.profile_image_url AS sender_profile_image_url,
+               n.type, n.resource_type, n.resource_id, n.is_read, n.created_at
+        FROM notifications n
+        LEFT JOIN users u ON n.sender_id = u.id
+        WHERE n.recipient_id = #{recipientId}
+        ORDER BY n.created_at DESC
+        LIMIT #{size}
+    </select>
+
+    <update id="markAllRead">
+        UPDATE notifications SET is_read = true
+        WHERE recipient_id = #{recipientId} AND is_read = false
+    </update>
+
+    <select id="countUnread" resultType="long">
+        SELECT COUNT(*) FROM notifications
+        WHERE recipient_id = #{recipientId} AND is_read = false
+    </select>
+
+    <select id="findPostOwnerById" resultType="long">
+        SELECT user_id FROM posts WHERE id = #{postId} AND is_deleted = false
+    </select>
+
+</mapper>
