@@ -21,7 +21,7 @@ ON CONFLICT (employee_no) DO NOTHING;
 
 -- ── 게시글 (유저별 0개일 때만 삽입) ──────────
 INSERT INTO posts (user_id, content, created_at)
-SELECT u.id, v.content, NOW() + v.offset
+SELECT u.id, v.content, NOW() + v.ts
 FROM (VALUES
   ('EMP001', '오늘 새로운 마이크로서비스 아키텍처 도입을 검토했습니다. 모놀리식에서 분리하는 과정이 생각보다 복잡하네요.', INTERVAL '-9 days'),
   ('EMP001', 'Spring Boot 3.x로 마이그레이션 완료! 가상 스레드(Virtual Thread) 덕분에 API 응답속도가 30% 개선됐어요 🚀', INTERVAL '-4 days'),
@@ -51,7 +51,7 @@ FROM (VALUES
   ('EMP010', '정기 보안 감사 완료. 취약점 3건 발견해서 즉시 패치 진행했습니다. 주기적인 감사가 얼마나 중요한지 다시 느꼈어요 🔐', INTERVAL '-7 days'),
   ('EMP010', 'OAuth 2.0 도입 검토 중입니다. 현재 JWT 방식과 비교해서 장단점을 정리하고 있어요.', INTERVAL '-4 days'),
   ('EMP010', '개발팀 보안 교육 진행했습니다. SQL Injection, XSS 등 기본적인 것들이지만 놓치기 쉬운 부분들이라 다 같이 복습했어요.', INTERVAL '-2 days')
-) AS v(emp_no, content, offset)
+) AS v(emp_no, content, ts)
 JOIN users u ON u.employee_no = v.emp_no
 WHERE NOT EXISTS (SELECT 1 FROM posts p WHERE p.user_id = u.id);
 
