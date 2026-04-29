@@ -39,7 +39,7 @@ public class SecurityConfig {
                             "/v3/api-docs/**", "/api-docs/**",
                             "/webjars/**"
                         ).permitAll()
-                        .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers("/actuator/health", "/actuator/prometheus").permitAll()
                         .requestMatchers(HttpMethod.GET, "/actuator/**").hasRole("ADMIN")
                         .requestMatchers("/ws/**").permitAll()
                         .anyRequest().authenticated())

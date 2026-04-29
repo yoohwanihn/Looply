@@ -18,6 +18,12 @@ services:
     ports:
       - "8080:8080"
     volumes: !reset []
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
     depends_on:
       db:
         condition: service_healthy
@@ -37,6 +43,7 @@ services:
       - "80:80"
     volumes: !reset []
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - sns-net
