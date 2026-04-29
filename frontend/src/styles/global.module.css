@@ -1,6 +1,6 @@
 :global(:root) {
-  --bg: #FFFFFF;
-  --bg-elevated: #FAFAFA;
+  --bg: #F2F2F2;
+  --bg-elevated: #FFFFFF;
   --bg-surface: #F2F2F2;
   --border: #DBDBDB;
   --border-subtle: #EFEFEF;

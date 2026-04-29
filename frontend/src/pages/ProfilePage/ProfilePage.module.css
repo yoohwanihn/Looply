@@ -2,6 +2,7 @@
   max-width: 620px;
   margin: 0 auto;
   min-height: 100vh;
+  background: var(--bg);
 }
 
 .backHeader {
@@ -48,8 +49,11 @@
 }
 
 .card {
-  padding: 28px 20px 24px;
-  border-bottom: 1px solid var(--border-subtle);
+  margin: 12px;
+  padding: 24px 20px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
 }
 
 .topRow {
