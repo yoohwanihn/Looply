@@ -2,11 +2,14 @@ package com.nt.sns.follow.service;
 
 import com.nt.sns.common.exception.BusinessException;
 import com.nt.sns.common.exception.ErrorCode;
+import com.nt.sns.follow.dto.FollowUserResponse;
 import com.nt.sns.follow.mapper.FollowMapper;
 import com.nt.sns.notification.service.NotificationService;
 import com.nt.sns.user.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class FollowService {
@@ -41,5 +44,13 @@ public class FollowService {
     public void unfollow(Long followerId, Long followingId) {
         if (!followMapper.existsFollow(followerId, followingId)) return;
         followMapper.deleteFollow(followerId, followingId);
+    }
+
+    public List<FollowUserResponse> getFollowing(Long userId) {
+        return followMapper.findFollowingList(userId);
+    }
+
+    public List<FollowUserResponse> getFollowers(Long userId) {
+        return followMapper.findFollowersList(userId);
     }
 }
