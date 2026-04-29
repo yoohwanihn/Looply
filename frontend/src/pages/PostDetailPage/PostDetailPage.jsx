@@ -60,6 +60,7 @@ export default function PostDetailPage() {
         <h1 className={styles.title}>스레드</h1>
       </header>
 
+      <div className={styles.body}>
       <Post post={post} onUpdate={loadPost} onDelete={() => navigate('/')} showComments />
 
       <section className={styles.commentSection}>
@@ -89,6 +90,7 @@ export default function PostDetailPage() {
           )}
         </div>
       </section>
+      </div>
     </div>
   )
 }

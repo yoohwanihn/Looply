@@ -2,14 +2,17 @@
   display: flex;
   gap: 12px;
   padding: 16px 16px 12px;
-  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background 0.1s;
+  transition: box-shadow 0.15s, border-color 0.15s;
   position: relative;
 }
 
 .post:hover {
-  background: rgba(0,0,0,0.03);
+  border-color: #C0C0C0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
 }
 
 .leftCol {

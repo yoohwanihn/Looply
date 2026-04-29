@@ -2,6 +2,7 @@
   max-width: 620px;
   margin: 0 auto;
   min-height: 100vh;
+  background: var(--bg);
 }
 
 .header {
@@ -79,7 +80,19 @@
 
 .errorState button:hover { background: var(--bg-surface); }
 
-.commentSection { border-top: 1px solid var(--border-subtle); }
+.body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.commentSection {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
 
 .commentForm {
   display: flex;

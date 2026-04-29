@@ -2,6 +2,7 @@
   max-width: 620px;
   margin: 0 auto;
   min-height: 100vh;
+  background: var(--bg);
 }
 
 .backHeader {
@@ -52,7 +53,11 @@
 .saveBtn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .form {
-  padding: 0;
+  margin: 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
 }
 
 .avatarSection {
