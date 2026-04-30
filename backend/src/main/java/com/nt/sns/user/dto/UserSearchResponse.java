@@ -6,5 +6,6 @@ public record UserSearchResponse(
         String name,
         String department,
         String position,
-        String profileImageUrl
+        String profileImageUrl,
+        boolean isFollowing
 ) {}

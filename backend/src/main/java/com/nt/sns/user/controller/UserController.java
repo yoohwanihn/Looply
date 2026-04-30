@@ -60,8 +60,10 @@ public class UserController {
 
     @Operation(summary = "사용자 검색 (멘션 자동완성)")
     @GetMapping("/search")
-    public ApiResponse<List<UserSearchResponse>> search(@RequestParam String q) {
-        return ApiResponse.ok(userService.searchByName(q));
+    public ApiResponse<List<UserSearchResponse>> search(
+            @RequestParam String q,
+            @AuthenticationPrincipal Long requesterId) {
+        return ApiResponse.ok(userService.searchByName(q, requesterId));
     }
 
     @Operation(summary = "[ADMIN] 소속·직급 수정")

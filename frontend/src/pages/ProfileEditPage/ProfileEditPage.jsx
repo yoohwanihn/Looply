@@ -58,12 +58,12 @@ export default function ProfileEditPage() {
           </svg>
         </button>
         <span className={styles.headerTitle}>프로필 수정</span>
-        <button className={styles.saveBtn} disabled={saving} onClick={handleSubmit}>
+        <button className={styles.saveBtn} type="submit" form="profile-edit-form" disabled={saving}>
           {saving ? '저장 중...' : '저장'}
         </button>
       </header>
 
-      <form className={styles.form} onSubmit={handleSubmit}>
+      <form id="profile-edit-form" className={styles.form} onSubmit={handleSubmit}>
         <div className={styles.avatarSection}>
           <label className={styles.avatarLabel}>
             {preview
