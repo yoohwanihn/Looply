@@ -9,6 +9,14 @@ export default function ProfilePage() {
   const navigate = useNavigate()
   const [profile, setProfile] = useState(null)
   const [error, setError] = useState(false)
+
+  const handleFollowToggle = (nowFollowing) => {
+    setProfile(prev => prev ? {
+      ...prev,
+      followerCount: prev.followerCount + (nowFollowing ? 1 : -1),
+      isFollowing: nowFollowing,
+    } : prev)
+  }
   const myId = localStorage.getItem('userId')
 
   useEffect(() => {
@@ -62,7 +70,7 @@ export default function ProfilePage() {
         <div style={{ marginTop: 16 }}>
           {String(myId) === String(id)
             ? <button className={styles.editBtn} onClick={() => navigate('/profile/edit')}>프로필 수정</button>
-            : <FollowButton targetId={Number(id)} initialFollowing={profile.isFollowing ?? false} />}
+            : <FollowButton targetId={Number(id)} initialFollowing={profile.isFollowing ?? false} onToggle={handleFollowToggle} />}
         </div>
       </div>
     </div>
