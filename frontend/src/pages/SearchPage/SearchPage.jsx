@@ -86,7 +86,7 @@ export default function SearchPage() {
               {user.department && <span className={styles.dept}>{user.department}{user.position ? ` · ${user.position}` : ''}</span>}
             </div>
             {String(myId) !== String(user.id) && (
-              <FollowButton targetId={user.id} initialFollowing={false} />
+              <FollowButton targetId={user.id} initialFollowing={user.isFollowing ?? false} />
             )}
           </div>
         ))}

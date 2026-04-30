@@ -15,11 +15,11 @@ export default function FollowingPage() {
 
   useEffect(() => {
     const obs = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasMore && !loading) fetchPosts(cursor, false)
+      if (entries[0].isIntersecting && hasMore) fetchPosts(cursor, false)
     }, { threshold: 0.1 })
     if (loaderRef.current) obs.observe(loaderRef.current)
     return () => obs.disconnect()
-  }, [cursor, hasMore, loading])
+  }, [cursor, hasMore])
 
   const fetchPosts = async (cur, reset) => {
     if (!reset && loadingRef.current) return
@@ -54,7 +54,7 @@ export default function FollowingPage() {
           <Post key={post.id} post={post} onUpdate={() => fetchPosts(null, true)} />
         ))}
         <div ref={loaderRef} className={styles.loader}>
-          {loading ? '불러오는 중...' : hasMore && posts.length > 0 ? '' : posts.length > 0 ? '모든 게시물을 확인했습니다.' : ''}
+          {loading ? '불러오는 중...' : posts.length > 0 && !hasMore ? '모든 게시물을 확인했습니다.' : ''}
         </div>
       </div>
     </div>

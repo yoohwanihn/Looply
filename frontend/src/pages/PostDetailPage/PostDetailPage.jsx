@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getPost, getComments, createComment } from '../../api/posts.js'
 import Post from '../../components/Post/Post.jsx'
@@ -14,14 +14,16 @@ export default function PostDetailPage() {
   const [commentText, setCommentText] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  useEffect(() => { loadPost() }, [id])
-  useEffect(() => { if (post) loadComments() }, [post?.id])
-
-  const loadPost = () =>
+  const loadPost = useCallback(() => {
     getPost(id).then(r => setPost(r)).catch(() => setError(true))
+  }, [id])
 
-  const loadComments = () =>
+  const loadComments = useCallback(() => {
     getComments(id).then(r => setComments(r ?? [])).catch(() => {})
+  }, [id])
+
+  useEffect(() => { loadPost() }, [loadPost])
+  useEffect(() => { if (post) loadComments() }, [post?.id, loadComments])
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault()
@@ -47,8 +49,6 @@ export default function PostDetailPage() {
     </div>
   )
 
-  const myId = Number(localStorage.getItem('userId'))
-
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -61,35 +61,33 @@ export default function PostDetailPage() {
       </header>
 
       <div className={styles.body}>
-      <Post post={post} onUpdate={loadPost} onDelete={() => navigate('/')} showComments />
+        <Post post={post} onUpdate={loadPost} onDelete={() => navigate('/')} showComments />
 
-      <section className={styles.commentSection}>
-        <form className={styles.commentForm} onSubmit={handleCommentSubmit}>
-          <div className={styles.commentAvatar}>
-            {String(myId)}
-          </div>
-          <div className={styles.commentInputWrap}>
-            <input
-              className={styles.commentInput}
-              placeholder="답글 달기..."
-              value={commentText}
-              onChange={e => setCommentText(e.target.value.slice(0, 200))}
-            />
-            <button className={styles.commentBtn} disabled={!commentText.trim() || submitting}>
-              게시
-            </button>
-          </div>
-        </form>
+        <section className={styles.commentSection}>
+          <form className={styles.commentForm} onSubmit={handleCommentSubmit}>
+            <div className={styles.commentAvatar}>나</div>
+            <div className={styles.commentInputWrap}>
+              <input
+                className={styles.commentInput}
+                placeholder="답글 달기..."
+                value={commentText}
+                onChange={e => setCommentText(e.target.value.slice(0, 200))}
+              />
+              <button className={styles.commentBtn} disabled={!commentText.trim() || submitting}>
+                게시
+              </button>
+            </div>
+          </form>
 
-        <div className={styles.commentList}>
-          {comments.map(c => (
-            <Comment key={c.id} comment={c} onDelete={loadComments} />
-          ))}
-          {comments.length === 0 && (
-            <p className={styles.empty}>아직 답글이 없습니다.</p>
-          )}
-        </div>
-      </section>
+          <div className={styles.commentList}>
+            {comments.map(c => (
+              <Comment key={c.id} comment={c} onDelete={loadComments} />
+            ))}
+            {comments.length === 0 && (
+              <p className={styles.empty}>아직 답글이 없습니다.</p>
+            )}
+          </div>
+        </section>
       </div>
     </div>
   )

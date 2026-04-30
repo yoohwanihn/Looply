@@ -37,7 +37,7 @@ public class CommentService {
         notificationService.notifyComment(userId, postId);
         return commentMapper.findById(comment.getId())
                 .map(this::toResponse)
-                .orElseThrow();
+                .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_NOT_FOUND));
     }
 
     public List<CommentResponse> getComments(Long postId, Long cursor, int size) {

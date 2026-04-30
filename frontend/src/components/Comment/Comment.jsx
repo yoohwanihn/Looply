@@ -1,5 +1,6 @@
 import styles from './Comment.module.css'
 import { deleteComment } from '../../api/posts.js'
+import { relativeTime } from '../../utils/time.js'
 
 export default function Comment({ comment, onDelete }) {
   const myId = Number(localStorage.getItem('userId'))
@@ -12,14 +13,6 @@ export default function Comment({ comment, onDelete }) {
     } catch (_) {
       alert('댓글 삭제에 실패했습니다.')
     }
-  }
-
-  const relativeTime = (dateStr) => {
-    const diff = Date.now() - new Date(dateStr).getTime()
-    const mins = Math.floor(diff / 60000)
-    if (mins < 1) return '방금 전'
-    if (mins < 60) return `${mins}분 전`
-    return `${Math.floor(mins / 60)}시간 전`
   }
 
   return (

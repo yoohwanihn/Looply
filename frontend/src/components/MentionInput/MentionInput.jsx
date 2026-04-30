@@ -57,6 +57,10 @@ export default function MentionInput({ value, onChange, placeholder, maxLength, 
         placeholder={placeholder}
         rows={rows ?? 3}
         aria-label={placeholder}
+        onBlur={() => { setSuggestions([]); setMentionQuery(null) }}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') { setSuggestions([]); setMentionQuery(null) }
+        }}
       />
       {suggestions.length > 0 && (
         <ul className={styles.dropdown} role="listbox">
