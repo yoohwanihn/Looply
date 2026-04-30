@@ -11,6 +11,7 @@
 - [기술 스택](#기술-스택)
 - [아키텍처](#아키텍처)
 - [시작하기](#시작하기)
+- [접속 주소](#접속-주소)
 - [환경변수](#환경변수)
 - [Jenkins CI/CD](#jenkins-cicd)
 - [API 문서](#api-문서)
@@ -22,7 +23,7 @@
 ## 소개
 
 Looply는 팀 내 실시간 정보 공유와 소통을 위한 셀프 호스팅 SNS 플랫폼입니다.  
-해시태그와 멘션을 통한 빠른 정보 탐색, 채널 기반 그룹 소통, 실시간 알림을 지원합니다.
+해시태그와 멘션을 통한 빠른 정보 탐색, 실시간 알림, 이미지 라이트박스 등을 지원합니다.
 
 ---
 
@@ -32,15 +33,19 @@ Looply는 팀 내 실시간 정보 공유와 소통을 위한 셀프 호스팅 S
 - 이메일 기반 회원가입 및 로그인
 - JWT 인증 (Access Token 1시간 / Refresh Token 7일)
 - 로그인 5회 연속 실패 시 10분 계정 잠금
-- 프로필 사진 및 소개 수정
+- 프로필 사진 및 소개(bio) 수정
+- 프로필 페이지에서 해당 사용자의 게시글 목록 무한스크롤
 
 ### 피드
-- 300자 이내 포스팅, 이미지 최대 4장 첨부 (장당 10MB 이하)
+- 300자 이내 포스팅, 이미지 최대 4장 첨부 (장당 5MB 이하)
 - 본인 게시물 수정 (`수정됨` 표시) 및 삭제
+- 이미지 클릭 시 라이트박스 (ESC·화살표키 키보드 지원, 이미지 카운터)
+- `@이름` 멘션 클릭 시 해당 사용자 프로필로 즉시 이동
 
 ### 실시간 타임라인
-- 팔로우한 사용자의 게시물 최신 순 노출
-- 무한 스크롤
+- 전체 피드 / 팔로잉 피드 전환
+- 팔로우한 사용자의 새 게시글 실시간 감지 (WebSocket) → 배너로 알림
+- 무한 스크롤 (커서 기반 페이징)
 
 ### 상호작용
 - 좋아요, 댓글 (최대 200자)
@@ -48,7 +53,13 @@ Looply는 팀 내 실시간 정보 공유와 소통을 위한 셀프 호스팅 S
 
 ### 팔로우 및 멘션
 - 팔로우 즉시 타임라인 반영
-- `@` 자동완성으로 사용자 멘션, 멘션 시 실시간 알림 전송
+- `@` 자동완성으로 사용자 멘션
+- 팔로잉 관리 탭에서 팔로우/언팔로우 실시간 반영
+
+### 알림
+- 좋아요·댓글·팔로우 발생 시 WebSocket으로 실시간 푸시
+- 사이드바 벨 아이콘에 미읽음 뱃지 표시
+- 알림 페이지 진입 시 자동 읽음 처리 및 뱃지 초기화
 
 ---
 
@@ -58,6 +69,7 @@ Looply는 팀 내 실시간 정보 공유와 소통을 위한 셀프 호스팅 S
 |---|---|---|
 | **Frontend** | React + CSS Modules | 19.x |
 | | Vite | 8.x |
+| | SockJS + STOMP.js | — |
 | **Backend** | Java | 21 LTS |
 | | Spring Boot | 3.5.x |
 | | Spring Security + JJWT | 6.5.x / 0.12.x |
@@ -67,6 +79,7 @@ Looply는 팀 내 실시간 정보 공유와 소통을 위한 셀프 호스팅 S
 | | Redis | 7.4.x |
 | | Flyway | 10.x |
 | **Storage** | MinIO | RELEASE.2024-01-16 |
+| **메시지 브로커** | Apache Kafka (KRaft) | 3.9.x |
 | **Build** | Gradle | 8.14.x |
 | **실시간** | WebSocket (STOMP / SockJS) | — |
 | **테스트** | JUnit 5 + Mockito + JaCoCo | — |
@@ -83,7 +96,7 @@ Looply는 팀 내 실시간 정보 공유와 소통을 위한 셀프 호스팅 S
 │                   Browser                       │
 │          React 19 + Vite 8 (CSS Modules)        │
 └──────────────────────┬──────────────────────────┘
-                       │ HTTP / WebSocket
+                       │ HTTP / WebSocket (STOMP)
 ┌──────────────────────▼──────────────────────────┐
 │            Spring Boot 3.5 (Java 21)            │
 │     REST API  │  STOMP WebSocket  │  Actuator   │
@@ -93,12 +106,29 @@ Looply는 팀 내 실시간 정보 공유와 소통을 위한 셀프 호스팅 S
 │  └──────────┘  └───────────┘  └─────────────┘  │
 └──────────────┬──────────────────────────────────┘
                │
-    ┌──────────┴───────────┐
-    │                      │
-┌───▼────────────┐  ┌──────▼──────────────┐
+    ┌──────────┴──────────────┐
+    │                         │
+┌───▼────────────┐  ┌─────────▼───────────┐
 │  PostgreSQL 17 │  │     Redis 7.4        │
-│  메인 DB        │  │  캐시 / Pub/Sub 알림  │
+│  메인 DB        │  │  캐시 / 세션          │
 └────────────────┘  └─────────────────────┘
+```
+
+**실시간 알림 흐름**
+
+```
+사용자 액션 (좋아요·댓글·팔로우)
+    │
+    ▼
+NotificationService (DB 저장)
+    │
+    ▼ SimpMessagingTemplate
+STOMP /user/queue/notifications
+    │
+    ▼
+AppLayout (WebSocket 허브, 단일 연결)
+    ├─ Sidebar 뱃지 카운트 증가
+    └─ /notifications 진입 시 자동 초기화
 ```
 
 **CI/CD 흐름**
@@ -110,8 +140,8 @@ Looply는 팀 내 실시간 정보 공유와 소통을 위한 셀프 호스팅 S
 Jenkins Multi-Branch Pipeline
     ├─ A. Backend Test   (./gradlew test)
     ├─ B. Backend Build  (./gradlew bootJar)
-    ├─ B. Docker Build   (sns-backend:latest, sns-frontend:latest)
-    └─ C. Deploy         (main 브랜치만, docker compose)
+    ├─ C. Docker Build   (sns-backend:latest, sns-frontend:latest)
+    └─ D. Deploy         (main 브랜치만, docker compose)
 ```
 
 ---
@@ -136,7 +166,7 @@ cd Looply
 
 make dev     # 개발 환경 (소스 빌드, 포트 5173)
 make prod    # 프로덕션 환경 (Jenkins 빌드 이미지, 포트 80)
-make infra   # 개발 환경 + Jenkins·SonarQube·Grafana 등 인프라 포함
+make infra   # 개발 환경 + Jenkins·SonarQube·Grafana·Kafka 등 인프라 포함
 make down    # 전체 종료
 make ps      # 컨테이너 상태 확인
 ```
@@ -153,9 +183,11 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 .\compose.ps1 down
 ```
 
-### 접속 주소
+---
 
-#### 개발 환경 (`make dev`)
+## 접속 주소
+
+### 개발 환경 (`make dev`)
 
 | 서비스 | 주소 | 설명 |
 |---|---|---|
@@ -165,7 +197,7 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 | MinIO 콘솔 | http://localhost:9101 | 파일 스토리지 관리 |
 | 헬스체크 | http://localhost:8080/actuator/health | |
 
-#### 프로덕션 환경 (`make prod`)
+### 프로덕션 환경 (`make prod`)
 
 | 서비스 | 주소 | 설명 |
 |---|---|---|
@@ -174,7 +206,7 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 | Swagger UI | http://localhost:8080/swagger-ui.html | API 문서 |
 | MinIO 콘솔 | http://localhost:9101 | 파일 스토리지 관리 |
 
-#### 인프라 서비스 (`make infra`)
+### 인프라 서비스 (`make infra`)
 
 | 서비스 | 주소 | 기본 계정 |
 |---|---|---|
@@ -182,13 +214,14 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 | SonarQube | http://localhost:9000 | admin / admin |
 | Grafana | http://localhost:3000 | admin / admin |
 | Prometheus | http://localhost:9090 | — |
-| Kafka | localhost:9092 | — |
+| Kafka UI | http://localhost:9094 | — |
+| Kafka (TCP) | localhost:9092 | 브로커 직접 연결 (코드·CLI용) |
 
 ---
 
 ## 환경변수
 
-`.env` 파일에서 관리합니다. 항목별 설명:
+`.env` 파일에서 관리합니다.
 
 | 변수 | 설명 | 기본값 |
 |---|---|---|
@@ -213,8 +246,6 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 
 ### 구조
 
-Jenkins는 Docker 컨테이너로 실행되며, Docker 소켓을 마운트해 파이프라인에서 Docker 빌드가 가능합니다.
-
 ```
 infra/jenkins/
 ├── Dockerfile            # Jenkins + Docker CLI 커스텀 이미지
@@ -237,34 +268,25 @@ docker compose -f docker-compose.yml -f docker-compose.infra.yml up -d jenkins
 docker compose -f docker-compose.yml -f docker-compose.infra.yml up -d --build jenkins
 
 # 로그 확인
-make logs s=sns-jenkins
+docker logs sns-jenkins -f
 ```
 
 ### Gitea 액세스 토큰 발급
 
-Jenkins가 Gitea 저장소에 접근하기 위한 토큰이 필요합니다.
-
 1. Gitea 로그인 → 우측 상단 프로필 → **Settings**
 2. 좌측 **Applications** → **Generate New Token**
-3. Token Name: `jenkins` (이름은 자유)
-4. Permissions: **repository → Read** 만 선택
-5. 발급된 토큰을 복사 → `.env`의 `GITEA_ACCESS_TOKEN`에 입력
-6. Jenkins 재시작:
-   ```bash
-   docker compose -f docker-compose.yml -f docker-compose.infra.yml restart jenkins
-   ```
+3. Token Name: `jenkins`, Permissions: **repository → Read**
+4. 발급된 토큰을 `.env`의 `GITEA_ACCESS_TOKEN`에 입력 후 Jenkins 재시작
 
 ### JCasC 자동 구성
 
-Jenkins 시작 시 `infra/jenkins/casc/jenkins.yaml`이 자동으로 적용됩니다.
+Jenkins 시작 시 `infra/jenkins/casc/jenkins.yaml`이 자동 적용됩니다.
 
 - **관리자 계정**: ID `admin`, PW `.env`의 `JENKINS_ADMIN_PASSWORD`
 - **Gitea 크리덴셜**: ID `gitea-credentials` (자동 생성)
 - **Multi-Branch Pipeline**: `sns-platform` 잡 자동 생성
 
 ### 파이프라인 스테이지
-
-`Jenkinsfile`에 정의된 CI/CD 파이프라인:
 
 | 스테이지 | 실행 조건 | 내용 |
 |---|---|---|
@@ -274,28 +296,13 @@ Jenkins 시작 시 `infra/jenkins/casc/jenkins.yaml`이 자동으로 적용됩�
 | **Docker Build** | 전체 브랜치 | `sns-backend:latest`, `sns-frontend:latest` 이미지 빌드 |
 | **Deploy** | `main` 만 | `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d` |
 
-### 프로덕션 배포
-
-`main` 브랜치 빌드 성공 시 자동 배포됩니다. (`develop` 이하 브랜치는 빌드만 수행)
-
-수동 배포:
-
-```bash
-make prod
-```
-
-> `docker-compose.yml`(db·redis·minio)과 `docker-compose.prod.yml`(앱)을 병합해 실행합니다.
-
-### 브랜치 스캔 주기
-
-기본 5분 폴링. Gitea 웹훅으로 즉시 트리거 가능:
+### Gitea 웹훅 설정 (즉시 트리거)
 
 1. Gitea 저장소 → **Settings** → **Webhooks** → **Add Webhook**
 2. URL: `http://<서버IP>:8090/multibranch-webhook-trigger/invoke?token=sns-platform`
-3. Content type: `application/json`
-4. 이벤트: Push events
+3. Content type: `application/json`, 이벤트: Push events
 
-### 초기화 (완전 재설치)
+### 초기화
 
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.infra.yml down jenkins
@@ -317,16 +324,37 @@ make infra
 | POST | `/api/auth/signup` | 회원가입 |
 | POST | `/api/auth/login` | 로그인 (JWT 발급) |
 | GET | `/api/users/me` | 내 프로필 조회 |
-| GET | `/api/posts/timeline` | 타임라인 조회 |
-| POST | `/api/posts` | 게시글 작성 |
+| PATCH | `/api/users/me/profile` | 프로필(bio) 수정 |
+| POST | `/api/users/me/avatar` | 프로필 사진 업로드 |
+| GET | `/api/users/{id}` | 특정 사용자 프로필 조회 |
+| GET | `/api/users/{id}/posts` | 특정 사용자 게시글 목록 (커서 기반) |
+| GET | `/api/users/search?q=` | 사용자 검색 |
+| GET | `/api/posts` | 전체 게시글 (커서 기반) |
+| GET | `/api/posts/timeline` | 내 타임라인 (나 + 팔로잉) |
+| GET | `/api/posts/following` | 팔로잉 피드 |
+| POST | `/api/posts` | 게시글 작성 (이미지 최대 4장) |
 | PATCH | `/api/posts/{id}` | 게시글 수정 |
 | DELETE | `/api/posts/{id}` | 게시글 삭제 |
 | POST | `/api/posts/{id}/likes` | 좋아요 |
 | DELETE | `/api/posts/{id}/likes` | 좋아요 취소 |
 | POST | `/api/posts/{id}/repost` | 리포스트 |
-| POST | `/api/comments` | 댓글 작성 |
+| DELETE | `/api/posts/{id}/repost` | 리포스트 취소 |
+| GET | `/api/posts/{id}/comments` | 댓글 목록 |
+| POST | `/api/posts/{id}/comments` | 댓글 작성 |
 | POST | `/api/follows/{id}` | 팔로우 |
+| DELETE | `/api/follows/{id}` | 언팔로우 |
+| GET | `/api/follows/following` | 팔로잉 목록 |
+| GET | `/api/follows/followers` | 팔로워 목록 |
+| GET | `/api/notifications` | 알림 목록 |
+| POST | `/api/notifications/read-all` | 전체 읽음 처리 |
 | WS | `/ws` | WebSocket 연결 (STOMP) |
+
+### WebSocket 구독 채널
+
+| 채널 | 설명 |
+|---|---|
+| `/user/queue/timeline` | 팔로잉 사용자의 새 게시글 알림 |
+| `/user/queue/notifications` | 좋아요·댓글·팔로우 실시간 알림 |
 
 ### API 응답 형식
 
@@ -370,40 +398,50 @@ docs      문서
 Looply/
 ├── .env                      # 환경변수 (실제 값)
 ├── .env.example              # 환경변수 예시
-├── Jenkinsfile               # CI/CD 파이프라인 정의
+├── Jenkinsfile               # CI/CD 파이프라인
 ├── Makefile                  # 환경별 실행 단축 명령 (WSL/Linux/macOS)
 ├── compose.ps1               # 환경별 실행 단축 명령 (Windows PowerShell)
 ├── docker-compose.yml        # 기본 서비스 (db, redis, minio, 개발용 앱)
-├── docker-compose.infra.yml  # 인프라 서비스 (Jenkins, SonarQube, Kafka 등)
-├── docker-compose.prod.yml   # 프로덕션 앱 오버라이드 (prod 이미지, 앱만 정의)
+├── docker-compose.infra.yml  # 인프라 서비스 (Jenkins, SonarQube, Kafka, Kafka UI 등)
+├── docker-compose.prod.yml   # 프로덕션 앱 오버라이드
 ├── backend/
 │   ├── build.gradle
-│   ├── src/main/java/com/nt/sns/
-│   │   ├── config/           # Security, Redis, WebSocket, MyBatis
-│   │   ├── auth/             # JWT 인증, 로그인
-│   │   ├── user/             # 사용자 도메인
-│   │   ├── post/             # 게시글, 댓글, 좋아요, 리포스트
-│   │   ├── follow/           # 팔로우
-│   │   ├── mention/          # @멘션
-│   │   ├── storage/          # MinIO 파일 업로드
-│   │   └── common/           # 공통 DTO, 예외 처리
-│   └── src/main/resources/
-│       ├── application.yml   # 공통 설정 (환경변수 참조)
-│       ├── application-dev.yml
-│       ├── mapper/           # MyBatis XML
-│       └── db/migration/     # Flyway SQL
+│   └── src/main/java/com/nt/sns/
+│       ├── config/           # Security, Redis, WebSocket, MyBatis
+│       ├── auth/             # JWT 인증, 로그인
+│       ├── user/             # 사용자 도메인
+│       ├── post/             # 게시글, 댓글, 좋아요, 리포스트
+│       ├── follow/           # 팔로우
+│       ├── mention/          # @멘션
+│       ├── notification/     # 알림 (WebSocket 실시간 푸시 포함)
+│       ├── storage/          # MinIO 파일 업로드
+│       └── common/           # 공통 DTO, 예외 처리
 ├── frontend/
 │   └── src/
 │       ├── api/              # Axios 클라이언트 + 인터셉터
-│       ├── pages/            # 페이지 컴포넌트
-│       └── components/       # 공통 컴포넌트
+│       ├── hooks/            # useWebSocket (AppLayout 내부로 통합)
+│       ├── utils/            # relativeTime 등 공통 유틸
+│       ├── components/
+│       │   ├── Post/         # 게시글 카드 (라이트박스, @멘션 포함)
+│       │   ├── Comment/      # 댓글
+│       │   ├── FollowButton/ # 팔로우 버튼
+│       │   ├── MentionInput/ # @멘션 자동완성 입력창
+│       │   ├── ImageLightbox/# 이미지 풀스크린 뷰어
+│       │   ├── PostContent/  # @멘션 파싱 + 클릭 네비게이션
+│       │   └── Sidebar/      # 사이드바 + AppLayout (WebSocket 허브)
+│       └── pages/
+│           ├── TimelinePage/
+│           ├── ProfilePage/  # 프로필 + 게시글 목록
+│           ├── PostDetailPage/
+│           ├── NotificationsPage/
+│           ├── SearchPage/
+│           ├── FollowingPage/
+│           ├── FollowManagePage/
+│           ├── ProfileEditPage/
+│           └── SettingsPage/
 └── infra/
     ├── jenkins/
-    │   ├── Dockerfile
-    │   ├── plugins.txt
-    │   ├── docker-entrypoint.sh
-    │   └── casc/jenkins.yaml
-    ├── postgres/init/        # DB 초기화 SQL
+    ├── postgres/init/
     ├── redis/
     ├── prometheus/
     └── grafana/
