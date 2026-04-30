@@ -64,7 +64,7 @@ const LogoutIcon = () => (
   </svg>
 )
 
-export default function Sidebar() {
+export default function Sidebar({ unreadCount = 0 }) {
   const navigate = useNavigate()
 
   const handleLogout = () => {
@@ -85,6 +85,23 @@ export default function Sidebar() {
     </NavLink>
   )
 
+  const bellItem = (
+    <NavLink
+      to="/notifications"
+      className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ''}`}
+    >
+      <span className={styles.icon}>
+        <span className={styles.iconBadgeWrap}>
+          <BellIcon />
+          {unreadCount > 0 && (
+            <span className={styles.badge}>{unreadCount > 99 ? '99+' : unreadCount}</span>
+          )}
+        </span>
+      </span>
+      <span className={styles.label}>알림</span>
+    </NavLink>
+  )
+
   return (
     <aside className={styles.sidebar}>
       <div className={styles.top}>
@@ -96,7 +113,7 @@ export default function Sidebar() {
         {navItem('/search', <SearchIcon />, '검색')}
         {navItem('/following', <FollowingIcon />, '팔로잉')}
         {navItem('/follow-manage', <ManageIcon />, '팔로잉 관리')}
-        {navItem('/notifications', <BellIcon />, '알림')}
+        {bellItem}
         {navItem(`/profile/${myId()}`, <ProfileIcon />, '프로필')}
       </nav>
 

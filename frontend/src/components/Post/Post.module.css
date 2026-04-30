@@ -197,6 +197,7 @@
   aspect-ratio: 1;
   object-fit: cover;
   display: block;
+  cursor: zoom-in;
 }
 
 .imagesSingle .image {

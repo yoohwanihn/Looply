@@ -3,21 +3,19 @@ import { createPost, getAllPosts } from '../../api/posts.js'
 import Post from '../../components/Post/Post.jsx'
 import MentionInput from '../../components/MentionInput/MentionInput.jsx'
 import styles from './TimelinePage.module.css'
-import { useWebSocket } from '../../hooks/useWebSocket.js'
+import { useAppContext } from '../../components/Sidebar/AppLayout.jsx'
 
 export default function TimelinePage() {
+  const { hasNewTimeline, clearTimeline } = useAppContext()
   const [posts, setPosts] = useState([])
   const [content, setContent] = useState('')
   const [images, setImages] = useState([])
   const [submitting, setSubmitting] = useState(false)
   const [cursor, setCursor] = useState(null)
   const [hasMore, setHasMore] = useState(true)
-  const [hasNew, setHasNew] = useState(false)
   const loaderRef = useRef(null)
   const loadingMoreRef = useRef(false)
   const MAX_LENGTH = 300
-
-  useWebSocket(() => setHasNew(true))
 
   useEffect(() => { fetchTimeline(null, true) }, [])
 
@@ -38,7 +36,7 @@ export default function TimelinePage() {
       const res = await getAllPosts(cur)
       const newPosts = Array.isArray(res) ? res : (res?.data ?? [])
       setPosts((prev) => reset ? newPosts : [...prev, ...newPosts])
-      if (reset) setHasNew(false)
+      if (reset) clearTimeline()
       if (newPosts.length > 0) setCursor(newPosts[newPosts.length - 1].id)
       setHasMore(newPosts.length === 20)
     } catch (_) {} finally {
@@ -97,8 +95,8 @@ export default function TimelinePage() {
           </div>
         </form>
 
-        {hasNew && (
-          <button className={styles.newBanner} onClick={() => { fetchTimeline(null, true); setHasNew(false) }}>
+        {hasNewTimeline && (
+          <button className={styles.newBanner} onClick={() => fetchTimeline(null, true)}>
             새 게시물 보기
           </button>
         )}

@@ -9,3 +9,5 @@ export const uploadAvatar = (file) => {
   return client.post('/users/me/avatar', form)
 }
 export const searchUsers = (q) => client.get('/users/search', { params: { q } })
+export const getUserPosts = (id, cursor) =>
+  client.get(`/users/${id}/posts`, { params: cursor ? { cursor } : {} })

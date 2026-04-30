@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { likePost, unlikePost, deletePost, repost, undoRepost, updatePost } from '../../api/posts.js'
 import { relativeTime } from '../../utils/time.js'
+import ImageLightbox from '../ImageLightbox/ImageLightbox.jsx'
+import PostContent from '../PostContent/PostContent.jsx'
 import styles from './Post.module.css'
 
 function HeartIcon({ filled }) {
@@ -51,6 +53,7 @@ export default function Post({ post, onUpdate, onDelete, showComments }) {
   const [editContent, setEditContent] = useState(post.content ?? '')
   const [saving, setSaving] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState(null)
   const myId = Number(localStorage.getItem('userId'))
   const isOwner = post.userId === myId
   const hasThreadLine = showComments || (post.commentCount ?? 0) > 0
@@ -185,14 +188,29 @@ export default function Post({ post, onUpdate, onDelete, showComments }) {
           </div>
         ) : (
           <>
-            <p className={styles.content}>{post.content}</p>
+            <PostContent content={post.content} className={styles.content} />
             {post.isEdited && <span className={styles.edited}>수정됨</span>}
             {post.imageUrls?.length > 0 && (
               <div className={`${styles.images} ${post.imageUrls.length === 1 ? styles.imagesSingle : ''}`}>
                 {post.imageUrls.map((url, i) => (
-                  <img key={url} src={url} alt={`이미지 ${i + 1}`} className={styles.image} onClick={e => e.stopPropagation()} />
+                  <img
+                    key={url}
+                    src={url}
+                    alt={`이미지 ${i + 1}`}
+                    className={styles.image}
+                    onClick={e => { e.stopPropagation(); setLightboxIndex(i) }}
+                  />
                 ))}
               </div>
+            )}
+            {lightboxIndex !== null && (
+              <ImageLightbox
+                images={post.imageUrls}
+                index={lightboxIndex}
+                onClose={() => setLightboxIndex(null)}
+                onPrev={() => setLightboxIndex(i => i - 1)}
+                onNext={() => setLightboxIndex(i => i + 1)}
+              />
             )}
           </>
         )}
