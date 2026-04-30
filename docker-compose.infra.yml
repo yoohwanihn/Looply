@@ -105,6 +105,23 @@ services:
     networks:
       - sns-net
 
+  # ── Kafka UI ──────────────────────────────────────
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: sns-kafka-ui
+    restart: unless-stopped
+    environment:
+      KAFKA_CLUSTERS_0_NAME: sns-kafka
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      TZ: Asia/Seoul
+    ports:
+      - "9094:8080"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - sns-net
+
   # ── Prometheus ────────────────────────────────────
   prometheus:
     image: prom/prometheus:latest
