@@ -20,19 +20,27 @@ function UserRow({ user, onToggleFollow }) {
   const [following, setFollowing] = useState(user.isFollowing)
   const [loading, setLoading] = useState(false)
 
+  // 부모에서 isFollowing이 변경되면 로컬 state도 동기화
+  useEffect(() => {
+    setFollowing(user.isFollowing)
+  }, [user.isFollowing])
+
   const handleToggle = async (e) => {
     e.stopPropagation()
     setLoading(true)
+    const prev = following
     try {
-      if (following) {
+      if (prev) {
         await unfollow(user.id)
         setFollowing(false)
+        onToggleFollow?.(user.id, false)
       } else {
         await follow(user.id)
         setFollowing(true)
+        onToggleFollow?.(user.id, true)
       }
-      onToggleFollow?.(user.id, !following)
     } catch (_) {
+      setFollowing(prev)
     } finally {
       setLoading(false)
     }
@@ -83,13 +91,21 @@ export default function FollowManagePage() {
   useEffect(() => { load() }, [load])
 
   const handleToggle = (userId, nowFollowing) => {
-    if (tab === 'following' && !nowFollowing) {
+    if (nowFollowing) {
+      // 팔로우: following 목록에 없으면 맨 앞에 추가
+      setFollowing(prev => {
+        if (prev.find(u => u.id === userId)) {
+          return prev.map(u => u.id === userId ? { ...u, isFollowing: true } : u)
+        }
+        const target = followers.find(u => u.id === userId)
+        return target ? [{ ...target, isFollowing: true }, ...prev] : prev
+      })
+    } else {
+      // 언팔로우: following 목록에서 제거
       setFollowing(prev => prev.filter(u => u.id !== userId))
     }
+    // 팔로워 목록의 isFollowing 상태 업데이트
     setFollowers(prev =>
-      prev.map(u => u.id === userId ? { ...u, isFollowing: nowFollowing } : u)
-    )
-    setFollowing(prev =>
       prev.map(u => u.id === userId ? { ...u, isFollowing: nowFollowing } : u)
     )
   }
