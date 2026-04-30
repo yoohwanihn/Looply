@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { likePost, unlikePost, deletePost, repost, undoRepost, updatePost } from '../../api/posts.js'
+import { relativeTime } from '../../utils/time.js'
 import styles from './Post.module.css'
 
 function HeartIcon({ filled }) {
@@ -38,22 +39,14 @@ function MoreIcon() {
   )
 }
 
-const relativeTime = (dateStr) => {
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const mins = Math.floor(diff / 60000)
-  if (mins < 1) return '방금'
-  if (mins < 60) return `${mins}분`
-  const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours}시간`
-  return `${Math.floor(hours / 24)}일`
-}
-
 export default function Post({ post, onUpdate, onDelete, showComments }) {
   const navigate = useNavigate()
   const [likeCount, setLikeCount] = useState(post.likeCount ?? 0)
   const [liked, setLiked] = useState(post.likedByMe ?? false)
+  const [likeLoading, setLikeLoading] = useState(false)
   const [reposted, setReposted] = useState(post.repostedByMe ?? false)
   const [repostCount, setRepostCount] = useState(post.repostCount ?? 0)
+  const [repostLoading, setRepostLoading] = useState(false)
   const [editing, setEditing] = useState(false)
   const [editContent, setEditContent] = useState(post.content ?? '')
   const [saving, setSaving] = useState(false)
@@ -64,11 +57,20 @@ export default function Post({ post, onUpdate, onDelete, showComments }) {
 
   const toggleLike = async (e) => {
     e.stopPropagation()
+    if (likeLoading) return
+    setLikeLoading(true)
     try {
-      if (liked) { await unlikePost(post.id); setLikeCount(c => c - 1) }
-      else { await likePost(post.id); setLikeCount(c => c + 1) }
-      setLiked(!liked)
-    } catch (_) {}
+      if (liked) {
+        await unlikePost(post.id)
+        setLikeCount(c => c - 1)
+      } else {
+        await likePost(post.id)
+        setLikeCount(c => c + 1)
+      }
+      setLiked(v => !v)
+    } catch (_) {} finally {
+      setLikeLoading(false)
+    }
   }
 
   const handleDelete = async (e) => {
@@ -95,12 +97,21 @@ export default function Post({ post, onUpdate, onDelete, showComments }) {
 
   const handleRepost = async (e) => {
     e.stopPropagation()
+    if (repostLoading) return
+    setRepostLoading(true)
     try {
-      if (reposted) { await undoRepost(post.id); setRepostCount(c => c - 1) }
-      else { await repost(post.id); setRepostCount(c => c + 1) }
-      setReposted(!reposted)
+      if (reposted) {
+        await undoRepost(post.id)
+        setRepostCount(c => c - 1)
+      } else {
+        await repost(post.id)
+        setRepostCount(c => c + 1)
+      }
+      setReposted(v => !v)
       if (onUpdate) onUpdate()
-    } catch (_) {}
+    } catch (_) {} finally {
+      setRepostLoading(false)
+    }
   }
 
   return (
@@ -187,7 +198,12 @@ export default function Post({ post, onUpdate, onDelete, showComments }) {
         )}
 
         <div className={styles.actions}>
-          <button className={`${styles.action} ${liked ? styles.liked : ''}`} onClick={toggleLike} aria-label="좋아요">
+          <button
+            className={`${styles.action} ${liked ? styles.liked : ''}`}
+            onClick={toggleLike}
+            disabled={likeLoading}
+            aria-label="좋아요"
+          >
             <HeartIcon filled={liked} />
             {likeCount > 0 && <span>{likeCount}</span>}
           </button>
@@ -196,7 +212,12 @@ export default function Post({ post, onUpdate, onDelete, showComments }) {
             {(post.commentCount ?? 0) > 0 && <span>{post.commentCount}</span>}
           </button>
           {!post.originalPost && !isOwner && (
-            <button className={`${styles.action} ${reposted ? styles.reposted : ''}`} onClick={handleRepost} aria-label="리포스트">
+            <button
+              className={`${styles.action} ${reposted ? styles.reposted : ''}`}
+              onClick={handleRepost}
+              disabled={repostLoading}
+              aria-label="리포스트"
+            >
               <RepostIcon />
               {repostCount > 0 && <span>{repostCount}</span>}
             </button>

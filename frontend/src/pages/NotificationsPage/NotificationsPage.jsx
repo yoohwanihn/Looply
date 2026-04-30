@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getNotifications, markAllRead } from '../../api/notifications.js'
+import { relativeTime } from '../../utils/time.js'
 import styles from './NotificationsPage.module.css'
 
 const typeLabel = {
@@ -15,13 +16,6 @@ const typeIcon = {
   FOLLOW: '👤',
 }
 
-function timeAgo(dateStr) {
-  const diff = (Date.now() - new Date(dateStr).getTime()) / 1000
-  if (diff < 60) return '방금'
-  if (diff < 3600) return `${Math.floor(diff / 60)}분 전`
-  if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`
-  return `${Math.floor(diff / 86400)}일 전`
-}
 
 export default function NotificationsPage() {
   const navigate = useNavigate()
@@ -74,7 +68,7 @@ export default function NotificationsPage() {
               <p className={styles.text}>
                 <strong>{n.senderName}</strong>{typeLabel[n.type] ?? ''}
               </p>
-              <span className={styles.time}>{timeAgo(n.createdAt)}</span>
+              <span className={styles.time}>{relativeTime(n.createdAt)}</span>
             </div>
             {!n.read && <span className={styles.dot} />}
           </div>

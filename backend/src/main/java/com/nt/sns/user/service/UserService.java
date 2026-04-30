@@ -13,11 +13,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserService {
 
     private static final String BUCKET_AVATARS = "sns-avatars";
+    private static final Set<String> ALLOWED_IMAGE_TYPES = Set.of(
+            "image/jpeg", "image/png", "image/gif", "image/webp"
+    );
 
     private final UserMapper userMapper;
     private final StorageService storageService;
@@ -58,11 +62,17 @@ public class UserService {
     public UserProfileResponse uploadAvatar(Long userId, MultipartFile file) {
         userMapper.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_IMAGE_TYPES.contains(contentType)) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT);
+        }
         try {
             String objectName = userId + "/avatar.jpg";
             String url = storageService.upload(BUCKET_AVATARS, objectName,
-                    file.getInputStream(), file.getSize(), file.getContentType());
+                    file.getInputStream(), file.getSize(), contentType);
             userMapper.updateProfileImageUrl(userId, url);
+        } catch (BusinessException e) {
+            throw e;
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.FILE_UPLOAD_FAILED);
         }
@@ -77,16 +87,19 @@ public class UserService {
         return getProfileResponse(targetId);
     }
 
-    public List<UserSearchResponse> searchByName(String keyword) {
+    public List<UserSearchResponse> searchByName(String keyword, Long requesterId) {
         return userMapper.searchByName(keyword).stream()
-                .map(this::toSearchResponse)
+                .map(user -> toSearchResponse(user, requesterId))
                 .toList();
     }
 
-    private UserSearchResponse toSearchResponse(User user) {
+    private UserSearchResponse toSearchResponse(User user, Long requesterId) {
+        boolean isFollowing = requesterId != null && !requesterId.equals(user.getId())
+                && followMapper.existsFollow(requesterId, user.getId());
         return new UserSearchResponse(
                 user.getId(), user.getEmployeeNo(), user.getName(),
-                user.getDepartment(), user.getPosition(), user.getProfileImageUrl());
+                user.getDepartment(), user.getPosition(), user.getProfileImageUrl(),
+                isFollowing);
     }
 
     private UserProfileResponse toResponse(User user, Long requesterId) {
