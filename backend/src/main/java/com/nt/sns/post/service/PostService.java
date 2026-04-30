@@ -170,6 +170,15 @@ public class PostService {
         return result;
     }
 
+    public List<PostResponse> getUserPosts(Long userId, Long requesterId, Long cursor, int size) {
+        List<Post> posts = postMapper.findByUserId(userId, requesterId, cursor, size);
+        List<PostResponse> result = new ArrayList<>();
+        for (Post p : posts) {
+            result.add(toResponse(p, requesterId));
+        }
+        return result;
+    }
+
     public List<PostResponse> getAllPosts(Long requesterId, Long cursor, int size) {
         List<Post> posts = postMapper.findAllPosts(requesterId, cursor, size);
         List<PostResponse> result = new ArrayList<>();

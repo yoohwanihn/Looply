@@ -1,0 +1,10 @@
+.mention {
+  color: #3b82f6;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.12s;
+}
+
+.mention:hover {
+  opacity: 0.75;
+}
