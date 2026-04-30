@@ -138,3 +138,30 @@
 }
 
 .editBtn:hover { background: var(--bg-surface); }
+
+/* ── 게시글 목록 ── */
+.postsSection {
+  margin-top: 8px;
+}
+
+.postsSectionHeader {
+  padding: 12px 16px 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.postsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 12px;
+}
+
+.postsLoader {
+  padding: 20px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+}

@@ -1,6 +1,8 @@
 package com.nt.sns.user.controller;
 
 import com.nt.sns.common.dto.ApiResponse;
+import com.nt.sns.post.dto.PostResponse;
+import com.nt.sns.post.service.PostService;
 import com.nt.sns.user.dto.AdminUpdateUserRequest;
 import com.nt.sns.user.dto.UpdateProfileRequest;
 import com.nt.sns.user.dto.UserProfileResponse;
@@ -23,9 +25,11 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final PostService postService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, PostService postService) {
         this.userService = userService;
+        this.postService = postService;
     }
 
     @Operation(summary = "내 프로필 조회")
@@ -64,6 +68,16 @@ public class UserController {
             @RequestParam String q,
             @AuthenticationPrincipal Long requesterId) {
         return ApiResponse.ok(userService.searchByName(q, requesterId));
+    }
+
+    @Operation(summary = "특정 사용자의 게시글 목록 (커서 기반)")
+    @GetMapping("/{id}/posts")
+    public ApiResponse<List<PostResponse>> getUserPosts(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Long requesterId,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "20") int size) {
+        return ApiResponse.ok(postService.getUserPosts(id, requesterId, cursor, Math.min(size, 50)));
     }
 
     @Operation(summary = "[ADMIN] 소속·직급 수정")
