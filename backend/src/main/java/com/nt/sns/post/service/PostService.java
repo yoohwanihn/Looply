@@ -5,10 +5,8 @@ import com.nt.sns.common.exception.ErrorCode;
 import com.nt.sns.mention.MentionMapper;
 import com.nt.sns.mention.MentionParser;
 import com.nt.sns.post.domain.Post;
-import com.nt.sns.post.domain.PostImage;
 import com.nt.sns.post.dto.PostResponse;
 import com.nt.sns.post.mapper.PostMapper;
-import com.nt.sns.storage.StorageService;
 import com.nt.sns.user.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,22 +16,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 
 @Service
 public class PostService {
 
-    private static final String BUCKET_IMAGES = "sns-images";
-    private static final int MAX_IMAGES = 4;
-    private static final Set<String> ALLOWED_IMAGE_TYPES = Set.of(
-        "image/jpeg", "image/png", "image/gif", "image/webp"
-    );
-
     private final PostMapper postMapper;
     private final BannedWordValidator bannedWordValidator;
-    private final StorageService storageService;
+    private final PostImageService postImageService;
     private final TimelinePublisher timelinePublisher;
     private final MentionParser mentionParser;
     private final MentionMapper mentionMapper;
@@ -41,14 +30,14 @@ public class PostService {
 
     public PostService(PostMapper postMapper,
                        BannedWordValidator bannedWordValidator,
-                       StorageService storageService,
+                       PostImageService postImageService,
                        TimelinePublisher timelinePublisher,
                        MentionParser mentionParser,
                        MentionMapper mentionMapper,
                        UserMapper userMapper) {
         this.postMapper = postMapper;
         this.bannedWordValidator = bannedWordValidator;
-        this.storageService = storageService;
+        this.postImageService = postImageService;
         this.timelinePublisher = timelinePublisher;
         this.mentionParser = mentionParser;
         this.mentionMapper = mentionMapper;
@@ -67,36 +56,7 @@ public class PostService {
         postMapper.insert(post);
 
         if (images != null && !images.isEmpty()) {
-            List<MultipartFile> valid = images.stream()
-                    .filter(f -> f != null && !f.isEmpty()).toList();
-            if (valid.size() > MAX_IMAGES) {
-                throw new BusinessException(ErrorCode.INVALID_INPUT);
-            }
-            for (int i = 0; i < valid.size(); i++) {
-                MultipartFile file = valid.get(i);
-                try {
-                    String contentType = file.getContentType();
-                    if (contentType == null || !ALLOWED_IMAGE_TYPES.contains(contentType)) {
-                        throw new BusinessException(ErrorCode.INVALID_INPUT);
-                    }
-                    String ext = Optional.ofNullable(file.getOriginalFilename())
-                        .filter(n -> n.contains("."))
-                        .map(n -> n.substring(n.lastIndexOf('.')))
-                        .orElse("");
-                    String objectName = post.getId() + "/" + i + "_" + UUID.randomUUID() + ext;
-                    String url = storageService.upload(BUCKET_IMAGES, objectName,
-                            file.getInputStream(), file.getSize(), contentType);
-                    PostImage img = new PostImage();
-                    img.setPostId(post.getId());
-                    img.setImageUrl(url);
-                    img.setDisplayOrder(i);
-                    postMapper.insertImage(img);
-                } catch (BusinessException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new BusinessException(ErrorCode.FILE_UPLOAD_FAILED);
-                }
-            }
+            postImageService.uploadImages(post.getId(), images);
         }
 
         // 멘션 저장
@@ -138,11 +98,7 @@ public class PostService {
         if (!"ADMIN".equals(role) && !post.getUserId().equals(userId)) {
             throw new BusinessException(ErrorCode.FORBIDDEN);
         }
-        List<String> imageUrls = postMapper.findImageUrls(postId);
-        for (String url : imageUrls) {
-            String objectName = url.substring(url.indexOf(BUCKET_IMAGES) + BUCKET_IMAGES.length() + 1);
-            try { storageService.delete(BUCKET_IMAGES, objectName); } catch (Exception ignored) {}
-        }
+        postImageService.deleteImages(postId);
         postMapper.softDelete(postId);
     }
 
