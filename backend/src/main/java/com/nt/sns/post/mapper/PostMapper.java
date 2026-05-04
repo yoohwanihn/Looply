@@ -17,6 +17,7 @@ public interface PostMapper {
 
     void insertImage(PostImage image);
     List<String> findImageUrls(Long postId);
+    void deleteImagesByPostId(Long postId);
 
     List<Post> findTimeline(@Param("requesterId") Long requesterId,
                             @Param("cursor") Long cursor,

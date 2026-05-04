@@ -71,5 +71,6 @@ public class PostImageService {
                 storageService.delete(BUCKET, objectName);
             } catch (Exception ignored) {}
         }
+        postMapper.deleteImagesByPostId(postId);
     }
 }
