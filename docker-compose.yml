@@ -70,6 +70,7 @@ services:
     volumes:
       - ./backend:/workspace
       - gradle_cache:/root/.gradle
+      - gradle_project_cache:/workspace/.gradle
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'"]
       interval: 15s
@@ -136,6 +137,7 @@ volumes:
   postgres_data:
   redis_data:
   gradle_cache:
+  gradle_project_cache:
   node_modules:
   minio_data:
 

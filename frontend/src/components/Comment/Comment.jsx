@@ -1,17 +1,20 @@
 import styles from './Comment.module.css'
 import { deleteComment } from '../../api/posts.js'
 import { relativeTime } from '../../utils/time.js'
+import { useAppContext } from '../Sidebar/AppLayout.jsx'
 
 export default function Comment({ comment, onDelete }) {
   const myId = Number(localStorage.getItem('userId'))
+  const { showToast } = useAppContext()
 
   const handleDelete = async () => {
     if (!confirm('댓글을 삭제하시겠습니까?')) return
     try {
       await deleteComment(comment.id)
       if (onDelete) onDelete()
-    } catch (_) {
-      alert('댓글 삭제에 실패했습니다.')
+    } catch (e) {
+      console.error('[Comment] 댓글 삭제 실패', e)
+      showToast('댓글 삭제에 실패했습니다.', 'error')
     }
   }
 

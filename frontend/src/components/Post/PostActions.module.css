@@ -1,0 +1,27 @@
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+}
+.action {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-secondary);
+  transition: color 0.15s, background 0.15s;
+}
+.action:hover {
+  color: var(--text);
+  background: var(--bg-surface);
+}
+.liked { color: var(--accent-like); }
+.liked:hover { color: var(--accent-like); }
+.reposted { color: var(--accent-repost); }
+.reposted:hover { color: var(--accent-repost); }
+.actionDisabled { opacity: 0.3; cursor: default; pointer-events: none; }

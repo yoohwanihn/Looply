@@ -1,17 +1,21 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getMyProfile, updateProfile, uploadAvatar } from '../../api/users.js'
+import { useAppContext } from '../../components/Sidebar/AppLayout.jsx'
 import styles from './ProfileEditPage.module.css'
 
 export default function ProfileEditPage() {
   const navigate = useNavigate()
+  const { showToast } = useAppContext()
   const [bio, setBio] = useState('')
   const [avatarFile, setAvatarFile] = useState(null)
   const [preview, setPreview] = useState(null)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    getMyProfile().then((res) => setBio(res?.bio ?? '')).catch(() => {})
+    getMyProfile().then((res) => setBio(res?.bio ?? '')).catch((e) => {
+      console.error('[ProfileEditPage] 프로필 로드 실패', e)
+    })
   }, [])
 
   useEffect(() => {
@@ -24,11 +28,11 @@ export default function ProfileEditPage() {
     const file = e.target.files[0]
     if (!file) return
     if (!file.type.startsWith('image/')) {
-      alert('이미지 파일만 업로드할 수 있습니다.')
+      showToast('이미지 파일만 업로드할 수 있습니다.', 'error')
       return
     }
     if (file.size > 5 * 1024 * 1024) {
-      alert('파일 크기는 5MB 이하여야 합니다.')
+      showToast('파일 크기는 5MB 이하여야 합니다.', 'error')
       return
     }
     setAvatarFile(file)
@@ -42,8 +46,9 @@ export default function ProfileEditPage() {
       if (avatarFile) await uploadAvatar(avatarFile)
       await updateProfile({ bio })
       navigate(-1)
-    } catch (_) {
-      alert('저장에 실패했습니다.')
+    } catch (e) {
+      console.error('[ProfileEditPage] 저장 실패', e)
+      showToast('저장에 실패했습니다.', 'error')
     } finally {
       setSaving(false)
     }

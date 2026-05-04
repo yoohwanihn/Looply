@@ -1,26 +1,25 @@
 import { useState } from 'react'
 import { follow, unfollow } from '../../api/follows.js'
+import { useAppContext } from '../Sidebar/AppLayout.jsx'
 import styles from './FollowButton.module.css'
 
 export default function FollowButton({ targetId, initialFollowing, onToggle }) {
-  const [following, setFollowing] = useState(initialFollowing ?? false)
+  const [following, setFollowing] = useState(initialFollowing)
   const [loading, setLoading] = useState(false)
+  const { showToast } = useAppContext()
 
-  const toggle = async () => {
+  const handleClick = async () => {
     if (loading) return
-    const prev = following
-    setFollowing(!prev)
     setLoading(true)
+    const prev = following
     try {
-      if (prev) {
-        await unfollow(targetId)
-      } else {
-        await follow(targetId)
-      }
+      if (following) await unfollow(targetId)
+      else await follow(targetId)
+      setFollowing(v => !v)
       if (onToggle) onToggle(!prev)
-    } catch (_) {
-      setFollowing(prev)
-      alert(prev ? '언팔로우에 실패했습니다.' : '팔로우에 실패했습니다.')
+    } catch (e) {
+      console.error('[FollowButton]', e)
+      showToast(prev ? '언팔로우에 실패했습니다.' : '팔로우에 실패했습니다.', 'error')
     } finally {
       setLoading(false)
     }
@@ -28,10 +27,9 @@ export default function FollowButton({ targetId, initialFollowing, onToggle }) {
 
   return (
     <button
-      className={`${styles.btn} ${following ? styles.following : styles.notFollowing}`}
-      onClick={toggle}
+      className={`${styles.btn} ${following ? styles.following : ''}`}
+      onClick={handleClick}
       disabled={loading}
-      aria-label={following ? '언팔로우' : '팔로우'}
     >
       {following ? '팔로잉' : '팔로우'}
     </button>
