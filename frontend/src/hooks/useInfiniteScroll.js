@@ -15,7 +15,7 @@ export function useInfiniteScroll(fetchFn, deps = []) {
 
   const load = useCallback(async (isReset) => {
     if (!isReset && loadingRef.current) return
-    const gen = isReset ? ++generationRef.current : generationRef.current
+    const gen = generationRef.current
     loadingRef.current = true
     try {
       const cursor = isReset ? null : cursorRef.current
