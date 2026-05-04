@@ -32,7 +32,7 @@ export default function ProfilePage() {
   useEffect(() => {
     setError(false)
     setProfile(null)
-    getProfile(id).then(res => setProfile(res)).catch(() => setError(true))
+    getProfile(id).then(res => setProfile(res)).catch((e) => { console.error('[ProfilePage] getProfile', e); setError(true) })
   }, [id])
 
   if (error) return <div className={styles.error}>프로필을 불러올 수 없습니다.</div>
