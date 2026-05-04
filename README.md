@@ -208,14 +208,17 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 
 ### 인프라 서비스 (`make infra`)
 
-| 서비스 | 주소 | 기본 계정 |
-|---|---|---|
-| Jenkins | http://localhost:8090 | admin / `.env`의 `JENKINS_ADMIN_PASSWORD` |
-| SonarQube | http://localhost:9000 | admin / admin |
-| Grafana | http://localhost:3000 | admin / admin |
-| Prometheus | http://localhost:9090 | — |
-| Kafka UI | http://localhost:9094 | — |
-| Kafka (TCP) | localhost:9092 | 브로커 직접 연결 (코드·CLI용) |
+| 서비스 | 주소 | 기본 계정 | 설명 |
+|---|---|---|---|
+| Jenkins | http://localhost:8090 | admin / `.env`의 `JENKINS_ADMIN_PASSWORD` | CI/CD 파이프라인 |
+| SonarQube | http://localhost:9000 | admin / admin | 정적 분석 / 코드 품질 |
+| Grafana | http://localhost:3000 | admin / admin | 메트릭 대시보드 |
+| Prometheus | http://localhost:9090 | — | 메트릭 수집 |
+| Kafka UI | http://localhost:9094 | — | 토픽·메시지·컨슈머 그룹 브라우저 관리 |
+
+> **Kafka 브로커** (`localhost:9092`) 는 HTTP가 아닌 TCP 바이너리 프로토콜로, 브라우저에서 직접 열 수 없습니다.  
+> 브라우저로 Kafka를 확인하려면 위의 **Kafka UI** (`http://localhost:9094`) 를 사용하세요.  
+> 코드·CLI에서 직접 연결할 때는 `bootstrap-servers: localhost:9092` (호스트) 또는 `kafka:9092` (Docker 내부) 를 사용합니다.
 
 ---
 
