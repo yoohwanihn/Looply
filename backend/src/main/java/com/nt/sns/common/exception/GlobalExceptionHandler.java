@@ -18,6 +18,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Void>> handleBusinessException(BusinessException e) {
+        log.warn("[BusinessException] {} {}", e.getErrorCode(), e.getMessage());
         return ResponseEntity
                 .status(e.getErrorCode().getStatus())
                 .body(ApiResponse.fail(e.getMessage()));
@@ -28,6 +29,7 @@ public class GlobalExceptionHandler {
         String message = e.getBindingResult().getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.joining(", "));
+        log.warn("[Validation] {}", message);
         return ResponseEntity.badRequest().body(ApiResponse.fail(message));
     }
 
