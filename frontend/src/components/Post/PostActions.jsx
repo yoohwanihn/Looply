@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom'
 import styles from './PostActions.module.css'
 
 function HeartIcon({ filled }) {
@@ -31,10 +30,8 @@ function RepostIcon() {
 export default function PostActions({
   post, liked, likeCount, likeLoading,
   reposted, repostCount, repostLoading,
-  isOwner, onLike, onRepost,
+  isOwner, onLike, onRepost, onComment,
 }) {
-  const navigate = useNavigate()
-
   return (
     <div className={styles.actions}>
       <button
@@ -48,7 +45,7 @@ export default function PostActions({
       </button>
       <button
         className={styles.action}
-        onClick={e => { e.stopPropagation(); navigate(`/posts/${post.id}`) }}
+        onClick={e => { e.stopPropagation(); onComment() }}
         aria-label="댓글"
       >
         <CommentIcon />

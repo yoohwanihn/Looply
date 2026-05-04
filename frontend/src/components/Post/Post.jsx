@@ -36,6 +36,7 @@ export default function Post({ post, onUpdate, onDelete, showComments }) {
       setLiked(v => !v)
     } catch (e) {
       console.error('[Post] toggleLike', e)
+      showToast('좋아요 처리에 실패했습니다.', 'error')
     } finally { setLikeLoading(false) }
   }
 
@@ -76,6 +77,7 @@ export default function Post({ post, onUpdate, onDelete, showComments }) {
       if (onUpdate) onUpdate()
     } catch (e) {
       console.error('[Post] repost', e)
+      showToast('리포스트에 실패했습니다.', 'error')
     } finally { setRepostLoading(false) }
   }
 
@@ -151,6 +153,7 @@ export default function Post({ post, onUpdate, onDelete, showComments }) {
           isOwner={isOwner}
           onLike={toggleLike}
           onRepost={handleRepost}
+          onComment={() => { if (!showComments) navigate(`/posts/${post.id}`) }}
         />
       </div>
     </article>
