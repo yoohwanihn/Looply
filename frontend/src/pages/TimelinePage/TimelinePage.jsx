@@ -87,7 +87,9 @@ export default function TimelinePage() {
             <Post key={post.id} post={post} onUpdate={reset} />
           ))}
           <div ref={loaderRef} className={styles.loader}>
-            {hasMore ? '불러오는 중...' : '모든 게시물을 확인했습니다.'}
+            {hasMore
+              ? (posts.length > 0 ? '불러오는 중...' : '')
+              : '모든 게시물을 확인했습니다.'}
           </div>
         </div>
       </main>
